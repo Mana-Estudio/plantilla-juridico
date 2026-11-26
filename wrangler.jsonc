@@ -11,6 +11,9 @@
     "html_handling": "auto-trailing-slash",
     "run_worker_first": ["/api/*"]
   },
+  // Demo de Maná: dominio propio sobre manaestudio.ar (gana al comodín *.manaestudio.ar que apunta a Vercel).
+  // En la web de un cliente: su dominio.
+  "routes": [{ "pattern": "plantilla-juridico.manaestudio.ar", "custom_domain": true }],
   "observability": { "enabled": true },
   "vars": {
     // Públicos. Secretos con `wrangler secret put`: RESEND_API_KEY y, si se usa Turnstile, TURNSTILE_SECRET.
