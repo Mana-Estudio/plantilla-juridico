@@ -1,0 +1,45 @@
+---
+// Cuota mensual de asesoría para empresas y autónomos (iguala), con los precios de honorarios.ts.
+import { iguala } from '../../data/honorarios';
+---
+<div class="calc-iguala" data-calc-iguala>
+  <form class="formulario" novalidate>
+    <p class="formulario-titulo">Calcula tu cuota mensual</p>
+    <fieldset class="paso">
+      <legend class="sub">Tu empresa</legend>
+      <div class="opciones rejilla">
+        {iguala.tamanos.map((t, i) => <label class="opcion"><input type="radio" name="tamano" value={t.id} checked={i === 1} /><span>{t.nombre}</span></label>)}
+      </div>
+    </fieldset>
+    <fieldset class="paso">
+      <legend class="sub">Qué necesitas que llevemos</legend>
+      <div class="opciones rejilla">
+        {iguala.servicios.map((s, i) => <label class="opcion"><input type="checkbox" name="servicios" value={s.id} checked={i < 2} /><span>{s.nombre}</span></label>)}
+      </div>
+    </fieldset>
+  </form>
+  <ul class="planes" role="list" aria-live="polite" data-planes>
+    {iguala.planes.map((p) => <li class="plan"><h3>{p.nombre}</h3><p class="cuota">—</p><p>{p.texto}</p></li>)}
+  </ul>
+  <p class="nota-legal">Cuotas orientativas, sin IVA, sin permanencia. Los juicios y asuntos fuera de la cuota tienen un descuento para clientes con iguala.</p>
+</div>
+<script>
+  import { cuotaIguala, euros } from '../../lib/calculos';
+  import { whatsappCon, esc } from '../../scripts/envio';
+  document.querySelectorAll<HTMLElement>('[data-calc-iguala]').forEach((caja) => {
+    const form = caja.querySelector('form')!;
+    const lista = caja.querySelector<HTMLElement>('[data-planes]')!;
+    const pintar = () => {
+      const d = new FormData(form);
+      const tamano = String(d.get('tamano'));
+      const servicios = d.getAll('servicios').map(String);
+      const c = cuotaIguala({ tamano, servicios });
+      lista.innerHTML = c.planes.map((p, i) => {
+        const texto = `Hola, me interesa el plan ${p.nombre} de asesoría mensual (${euros(p.precio)}/mes) para mi empresa.`;
+        return `<li class="plan${i === c.recomendado ? ' recomendado' : ''}">${i === c.recomendado ? '<span class="sello-plan">Recomendado</span>' : ''}<h3>${esc(p.nombre)}</h3><p class="cuota">${euros(p.precio)} <small>/ mes</small></p><p>${esc(p.texto)}</p><a class="enlace-flecha" href="${esc(whatsappCon(texto))}" data-evento="iguala">Lo quiero</a></li>`;
+      }).join('');
+    };
+    form.addEventListener('change', pintar);
+    pintar();
+  });
+</script>

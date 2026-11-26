@@ -1,0 +1,192 @@
+---
+import Base from '../layouts/Base.astro';
+import Foto from '../components/Foto.astro';
+import Icono from '../components/Icono.astro';
+import HojaEncargo from '../components/HojaEncargo.astro';
+import BarraConfianza from '../components/BarraConfianza.astro';
+import SelectorProblemas from '../components/SelectorProblemas.astro';
+import TarjetasAreas from '../components/TarjetasAreas.astro';
+import Proceso from '../components/Proceso.astro';
+import Compromisos from '../components/Compromisos.astro';
+import Opiniones from '../components/Opiniones.astro';
+import Casos from '../components/Casos.astro';
+import Equipo from '../components/Equipo.astro';
+import TeLlamamos from '../components/TeLlamamos.astro';
+import Faqs from '../components/Faqs.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { despacho } from '../data/despacho';
+import { modalidades, primeraConsulta } from '../data/honorarios';
+import { faqJsonld } from '../lib/seo';
+import { calculadoras } from '../data/calculadoras';
+
+const preguntas = [
+  { p: '¿Cuánto cuesta la primera consulta?', r: `${primeraConsulta.duracion} por ${primeraConsulta.precio} € más IVA. ${primeraConsulta.texto}` },
+  { p: '¿Qué tengo que llevar a la primera reunión?', r: 'Todo lo que tengas sobre el asunto: cartas, notificaciones, contratos, nóminas o sentencias. Si no sabes qué es importante, tráelo todo y lo ordenamos juntos.' },
+  { p: '¿Puedo hacer la consulta a distancia?', r: 'Sí. Podemos vernos por videollamada o hablar por teléfono, y nos envías los documentos por email.' },
+  { p: '¿Tengo que intentar un acuerdo antes de ir a juicio?', r: 'En la mayoría de los asuntos civiles, sí: desde abril de 2025 la ley pide intentar antes una vía de acuerdo, como una negociación o una mediación. Te ayudamos a hacerlo bien y a dejar constancia, porque sin ese intento la demanda no se admite.' },
+  { p: '¿Qué pasa si el juicio no sale bien?', r: 'Puede haber condena en costas, es decir, pagar parte de los gastos de la otra parte. Te explicamos ese riesgo antes de empezar y valoramos contigo si conviene negociar o ir a juicio.' },
+];
+const pasos = [
+  { titulo: 'Nos cuentas el caso', texto: 'Por teléfono, WhatsApp o el formulario. Te decimos si es un asunto que podemos llevar.' },
+  { titulo: 'Primera reunión', texto: 'Revisamos tus documentos y te explicamos las opciones, los riesgos y los plazos reales.' },
+  { titulo: 'Hoja de encargo', texto: 'Si decides seguir, te damos por escrito qué haremos y cuánto costará.' },
+  { titulo: 'Seguimiento', texto: 'Te informamos de cada novedad y de cada plazo hasta cerrar el asunto.' },
+];
+---
+<Base title={`${despacho.nombre} · Abogados en Madrid`} description={despacho.descripcion} jsonld={[faqJsonld(preguntas)]}>
+  <section class="portada" aria-labelledby="titulo">
+    <div class="contenedor portada-grilla">
+      <div class="portada-texto" data-entrada>
+        <p class="etiqueta">Despacho de abogados · {despacho.direccion.barrio}, Madrid</p>
+        <h1 id="titulo">Abogados en Madrid para particulares y empresas.</h1>
+        <p class="entradilla">Te decimos qué opciones tienes, cuánto puede costar y cuánto puede tardar, antes de que decidas nada.</p>
+        <div class="botones">
+          <a class="boton" href="/contacto/#cita" data-evento="cita" data-evento-detalle="portada"><Icono nombre="calendario" />Pedir primera consulta</a>
+          <a class="boton boton-linea" href="/presupuesto/" data-evento="presupuesto" data-evento-detalle="portada">Calcular presupuesto</a>
+        </div>
+        <ul class="datos-rapidos" role="list">
+          <li><a href={despacho.google.url}><span class="estrellas" aria-hidden="true">★★★★★</span><strong>{despacho.google.nota.toLocaleString('es-ES')}</strong> en Google · {despacho.google.total} opiniones</a></li>
+          <li><Icono nombre="reloj" />Respuesta en 24 horas</li>
+          <li><Icono nombre="mapa" />{despacho.direccion.calle.split(',')[0]}</li>
+        </ul>
+      </div>
+      <div class="portada-foto">
+        <div class="foto-marco"><Foto slug="balcon-hierro-granito" prioridad sizes="(min-width: 64rem) 45vw, 100vw" /></div>
+        <HojaEncargo class="hoja-flotante" />
+      </div>
+    </div>
+  </section>
+
+  <BarraConfianza />
+
+  <section class="seccion" aria-labelledby="problemas-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion">
+        <p class="etiqueta">Empieza por aquí</p>
+        <h2 id="problemas-titulo">¿Qué necesitas <em>resolver?</em></h2>
+        <p class="secundario">Elige lo que más se parece a tu situación y te contamos cómo lo llevamos, cuánto cuesta y qué plazos hay.</p>
+      </header>
+      <SelectorProblemas />
+    </div>
+  </section>
+
+  <section class="seccion fondo-lino" aria-labelledby="areas-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion fila">
+        <div class="cabecera-seccion">
+          <p class="etiqueta">Áreas de práctica</p>
+          <h2 id="areas-titulo">Seis áreas, <em>un mismo método</em></h2>
+        </div>
+        <a class="enlace-flecha" href="/areas/">Todas las áreas</a>
+      </header>
+      <TarjetasAreas />
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="calc-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion fila">
+        <div class="cabecera-seccion">
+          <p class="etiqueta">Calculadoras gratuitas</p>
+          <h2 id="calc-titulo">Haz números <em>antes de llamarnos</em></h2>
+          <p class="secundario">Indemnización por despido, reparto de una herencia, plazos para reclamar y más. Sin registrarte.</p>
+        </div>
+        <a class="enlace-flecha" href="/calculadoras/">Ver todas</a>
+      </header>
+      <ul class="tarjetas-calc" role="list">
+        {calculadoras.slice(0, 3).map((c) => (
+          <li><a class="tarjeta-calc" href={c.href}><span class="muestra">{c.muestra}</span><span><h3>{c.nombre}</h3><p>{c.texto}</p></span></a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="seccion fondo-tinta" aria-labelledby="metodo-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion">
+        <p class="etiqueta">Cómo trabajamos</p>
+        <h2 id="metodo-titulo">De la primera consulta <em>a cerrar el asunto</em></h2>
+      </header>
+      <Proceso pasos={pasos} />
+      <hr class="separador" />
+      <div class="seccion-corta"><Compromisos /></div>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="honorarios-titulo">
+    <div class="contenedor dos-col">
+      <div class="cabecera-seccion">
+        <p class="etiqueta">Honorarios</p>
+        <h2 id="honorarios-titulo">Sabrás lo que cuesta <em>antes de empezar</em></h2>
+        <p class="entradilla">Antes de firmar nada recibes una hoja de encargo con el presupuesto. Sin sorpresas a mitad de camino.</p>
+        <p class="secundario">Primera consulta: {primeraConsulta.duracion} por {primeraConsulta.precio} € + IVA. {primeraConsulta.texto}</p>
+        <div class="botones">
+          <a class="boton" href="/presupuesto/">Calcular mi presupuesto</a>
+          <a class="enlace-flecha" href="/honorarios/">Cómo cobramos</a>
+        </div>
+      </div>
+      <ul class="credenciales" role="list">
+        {modalidades.map((m) => <li><Icono nombre="check" /><span><strong>{m.nombre}.</strong> {m.texto}</span></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="seccion fondo-lino" aria-labelledby="opiniones-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion">
+        <p class="etiqueta">Opiniones en Google</p>
+        <h2 id="opiniones-titulo">Lo que cuentan <em>quienes ya pasaron por aquí</em></h2>
+      </header>
+      <Opiniones limite={3} />
+      <p class="nota"><a class="enlace-flecha" href="/opiniones/">Más opiniones y casos</a></p>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="casos-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion">
+        <p class="etiqueta">Casos recientes</p>
+        <h2 id="casos-titulo">Así resolvimos <em>asuntos como el tuyo</em></h2>
+      </header>
+      <Casos limite={3} tres />
+    </div>
+  </section>
+
+  <section class="seccion fondo-lino" aria-labelledby="equipo-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion fila">
+        <div class="cabecera-seccion">
+          <p class="etiqueta">El equipo</p>
+          <h2 id="equipo-titulo">Sabes siempre <em>quién lleva tu caso</em></h2>
+        </div>
+        <a class="enlace-flecha" href="/despacho/">Conoce el despacho</a>
+      </header>
+      <Equipo />
+    </div>
+  </section>
+
+  <section class="banda-foto" aria-labelledby="visita-titulo">
+    <Foto slug="madrid-atardecer" sizes="100vw" anchos={[800, 1200, 1600, 2000]} />
+    <div class="contenedor">
+      <p class="etiqueta">Visítanos</p>
+      <h2 id="visita-titulo">En {despacho.direccion.barrio}, en el centro de Madrid.</h2>
+      <p>{despacho.direccion.calle}, {despacho.direccion.cp} {despacho.direccion.ciudad}. {despacho.direccion.metro}.</p>
+      <div class="botones"><a class="boton" href={despacho.direccion.mapa} data-evento="mapa">Cómo llegar</a><a class="boton boton-linea" href="/contacto/">Horario y contacto</a></div>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="faq-titulo">
+    <div class="contenedor dos-col">
+      <div>
+        <header class="cabecera-seccion">
+          <p class="etiqueta">Preguntas frecuentes</p>
+          <h2 id="faq-titulo">Antes de <em>tu consulta</em></h2>
+        </header>
+        <TeLlamamos id="llamada-portada" />
+      </div>
+      <Faqs preguntas={preguntas} />
+    </div>
+  </section>
+
+  <CtaFinal />
+</Base>

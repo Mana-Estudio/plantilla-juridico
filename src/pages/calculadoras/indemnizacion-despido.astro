@@ -1,0 +1,29 @@
+---
+import PaginaCalculadora from '../../layouts/PaginaCalculadora.astro';
+import Despido from '../../components/calculadoras/Despido.astro';
+const preguntas = [
+  { p: '¿Qué salario se usa para calcular la indemnización?', r: 'El salario bruto anual que cobrabas en el momento del despido, con las pagas extra prorrateadas, dividido entre 365. Si cobrabas variables o complementos, también cuentan.' },
+  { p: '¿Qué pasa si mi contrato es anterior a 2012?', r: 'El tiempo trabajado hasta el 11 de febrero de 2012 se calcula a 45 días por año, y el posterior a 33. El máximo es de 720 días, salvo que el primer tramo ya lo supere (con un límite de 42 mensualidades).' },
+  { p: '¿Cuándo es improcedente un despido?', r: 'Cuando la empresa no puede probar las causas que alega o no cumple los requisitos de forma, por ejemplo una carta sin hechos concretos. Lo decide el juez, o la empresa lo reconoce en la conciliación.' },
+  { p: '¿Qué plazo tengo para reclamar?', r: '20 días hábiles desde el día siguiente al despido. Es un plazo de caducidad: si pasa, ya no se puede reclamar.' },
+];
+---
+<PaginaCalculadora slug="indemnizacion-despido" area="laboral" preguntas={preguntas}
+  title="Calculadora de indemnización por despido 2026"
+  description="Calcula gratis tu indemnización por despido improcedente, objetivo o fin de contrato, con el tramo anterior a 2012 y los topes legales."
+  h1="Calculadora de indemnización por despido"
+  entradilla="Para despidos improcedentes, objetivos y fin de contrato temporal, con el tramo anterior a la reforma de 2012 y los topes legales.">
+  <Despido slot="herramienta" />
+  <p>La indemnización se calcula multiplicando tu <strong>salario diario</strong> por un número de días por cada año trabajado, que depende del tipo de despido (Estatuto de los Trabajadores, arts. 56, 53 y 49):</p>
+  <table>
+    <thead><tr><th>Tipo</th><th>Días por año</th><th>Máximo</th></tr></thead>
+    <tbody>
+      <tr><td>Improcedente (desde el 12/02/2012)</td><td>33</td><td>24 mensualidades</td></tr>
+      <tr><td>Improcedente (tiempo anterior)</td><td>45</td><td>42 mensualidades</td></tr>
+      <tr><td>Objetivo procedente</td><td>20</td><td>12 mensualidades</td></tr>
+      <tr><td>Fin de contrato temporal</td><td>12</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <p>Los periodos de menos de un año se prorratean por meses, y los juzgados cuentan como mes completo la fracción de mes. Por eso dos días más de antigüedad pueden sumar un mes entero al cálculo.</p>
+  <p class="destacado">El cálculo no incluye el finiquito (salario pendiente, vacaciones no disfrutadas y parte de las pagas extra), que te corresponde siempre, ni los salarios de tramitación si el despido se declara nulo.</p>
+</PaginaCalculadora>

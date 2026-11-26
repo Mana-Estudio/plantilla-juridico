@@ -1,0 +1,167 @@
+---
+// Presupuestador de honorarios: área → asunto → detalles → precio orientativo al momento.
+// Todo sale de src/data/honorarios.ts. El resultado se puede recibir por email (formulario) o WhatsApp.
+import Consentimiento from './Consentimiento.astro';
+import { areas } from '../data/areas';
+import { asuntos, tramosHerencia } from '../data/honorarios';
+interface Props { area?: string }
+const { area } = Astro.props;
+const datos = JSON.stringify({ asuntos, tramos: tramosHerencia.map((t) => t.nombre), areas: areas.map((a) => ({ clave: a.clave, nombre: a.nombre })) });
+---
+<div class="presupuestador" data-presupuestador={datos} data-area-inicial={area ?? ''}>
+  <form class="formulario" novalidate data-presu-form>
+    <fieldset class="paso">
+      <legend>1. ¿De qué área es tu asunto?</legend>
+      <div class="opciones rejilla">
+        {areas.map((a, i) => <label class="opcion"><input type="radio" name="area" value={a.clave} checked={area ? a.clave === area : i === 1} /><span>{a.nombre}</span></label>)}
+      </div>
+    </fieldset>
+    <fieldset class="paso">
+      <legend>2. ¿Qué necesitas?</legend>
+      <div class="opciones lista" data-asuntos></div>
+    </fieldset>
+    <fieldset class="paso" data-detalles hidden>
+      <legend>3. Algunos detalles</legend>
+      <div data-detalles-cuerpo></div>
+    </fieldset>
+  </form>
+
+  <aside class="presu-resultado" aria-live="polite" data-presu-resultado>
+    <p class="etiqueta">Tu presupuesto orientativo</p>
+    <p class="rango" data-rango>—</p>
+    <p data-explica class="secundario">Elige el área y el asunto.</p>
+    <label class="interruptor"><input type="checkbox" data-iva /> Ver con IVA (21 %)</label>
+    <ul role="list" data-incluye></ul>
+    <p class="nota-legal">Orientativo. El precio definitivo va por escrito en la hoja de encargo antes de empezar. No incluye procurador, peritos, notaría ni tasas.</p>
+    <div class="acciones">
+      <a class="boton" href="/contacto/#cita" data-presu-cita data-evento="presupuesto-cita">Pedir cita para confirmarlo</a>
+      <a class="boton boton-linea" href="#" data-presu-wa data-evento="presupuesto-whatsapp">Enviármelo por WhatsApp</a>
+      <button class="boton boton-linea" type="button" data-presu-email-abrir>Recibirlo por email</button>
+    </div>
+    <form class="formulario" data-form="presupuesto" novalidate hidden>
+      <input type="hidden" name="tipo" value="presupuesto" />
+      <input type="hidden" name="area" />
+      <input type="hidden" name="resumen" />
+      <p class="formulario-titulo">Te lo mandamos por email</p>
+      <div class="campo"><label for="presu-nombre">Nombre</label><input id="presu-nombre" name="nombre" autocomplete="name" required minlength="2" /></div>
+      <div class="campo"><label for="presu-email">Email</label><input id="presu-email" name="email" type="email" autocomplete="email" required /></div>
+      <div class="campo"><label for="presu-telefono">Teléfono</label><input id="presu-telefono" name="telefono" type="tel" autocomplete="tel" required pattern="[0-9+\(\)\s.\-]{9,20}" /></div>
+      <Consentimiento id="presu" />
+      <p class="error-form" role="alert" hidden></p>
+      <button class="boton" type="submit">Enviar</button>
+      <div class="listo" role="status" tabindex="-1" hidden></div>
+    </form>
+  </aside>
+</div>
+<script>
+  import { presupuesto, euros, conIva } from '../lib/calculos';
+  import { enviar, marcarInicio, validarCampos, whatsappCon, esc } from '../scripts/envio';
+  import type { Asunto } from '../data/honorarios';
+
+  document.querySelectorAll<HTMLElement>('[data-presupuestador]').forEach((caja) => {
+    const datos = JSON.parse(caja.dataset.presupuestador ?? '{}') as { asuntos: Record<string, Asunto[]>; tramos: string[]; areas: { clave: string; nombre: string }[] };
+    const form = caja.querySelector<HTMLFormElement>('[data-presu-form]')!;
+    const cajaAsuntos = caja.querySelector<HTMLElement>('[data-asuntos]')!;
+    const pasoDetalles = caja.querySelector<HTMLElement>('[data-detalles]')!;
+    const detalles = caja.querySelector<HTMLElement>('[data-detalles-cuerpo]')!;
+    const rango = caja.querySelector<HTMLElement>('[data-rango]')!;
+    const explica = caja.querySelector<HTMLElement>('[data-explica]')!;
+    const incluye = caja.querySelector<HTMLElement>('[data-incluye]')!;
+    const iva = caja.querySelector<HTMLInputElement>('[data-iva]')!;
+    const cita = caja.querySelector<HTMLAnchorElement>('[data-presu-cita]')!;
+    const wa = caja.querySelector<HTMLAnchorElement>('[data-presu-wa]')!;
+    const abrirEmail = caja.querySelector<HTMLButtonElement>('[data-presu-email-abrir]')!;
+    const formEmail = caja.querySelector<HTMLFormElement>('form[data-form="presupuesto"]')!;
+    const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m5 12.5 4.2 4.2L19 7"/></svg>';
+    let resumenActual = '';
+
+    // ?area=familia desde otras páginas
+    const pedida = new URLSearchParams(location.search).get('area');
+    if (pedida) { const r = form.querySelector<HTMLInputElement>(`input[name="area"][value="${CSS.escape(pedida)}"]`); if (r) r.checked = true; }
+
+    const area = () => String(new FormData(form).get('area') ?? '');
+    const asuntoActual = () => (datos.asuntos[area()] ?? []).find((a) => a.id === String(new FormData(form).get('asunto') ?? ''));
+
+    const pintarAsuntos = () => {
+      const lista = datos.asuntos[area()] ?? [];
+      cajaAsuntos.innerHTML = lista.map((a, i) => `<label class="opcion"><input type="radio" name="asunto" value="${a.id}" ${i === 0 ? 'checked' : ''}><span>${esc(a.nombre)}${a.detalle ? `<small>${esc(a.detalle)}</small>` : ''}</span></label>`).join('');
+      pintarDetalles();
+    };
+    const pintarDetalles = () => {
+      const a = asuntoActual();
+      if (!a) { pasoDetalles.hidden = true; return; }
+      let html = '';
+      if (a.precio.tipo === 'herencia') {
+        html += `<div class="campos dos"><div class="campo"><label for="presu-tramo">Valor de la herencia</label><select id="presu-tramo" name="tramo">${datos.tramos.map((t, i) => `<option value="${i}">${esc(t)}</option>`).join('')}</select></div>
+          <div class="campo"><label for="presu-herederos">Número de herederos</label><input id="presu-herederos" name="herederos" type="number" min="1" max="20" value="2"></div></div>
+          <div class="opciones"><label class="opcion"><input type="radio" name="testamento" value="si" checked><span>Hay testamento</span></label><label class="opcion"><input type="radio" name="testamento" value="no"><span>No hay testamento</span></label></div>`;
+      }
+      if (a.precio.tipo === 'porcentaje') {
+        html += `<div class="campo"><label for="presu-importe">¿Cuánto calculas que se puede reclamar? <span class="ayuda">(opcional)</span></label><input id="presu-importe" name="importe" type="number" min="0" step="100" placeholder="Por ejemplo, 12000"><span class="ayuda">Si es un despido, usa la <a href="/calculadoras/indemnizacion-despido/">calculadora de indemnización</a>.</span></div>`;
+      }
+      if (a.extras?.length) {
+        html += `<p class="sub">¿Hay algo más?</p><div class="opciones lista">${a.extras.map((e) => `<label class="opcion"><input type="checkbox" name="extras" value="${e.id}"><span>${esc(e.nombre)}</span></label>`).join('')}</div>`;
+      }
+      detalles.innerHTML = html;
+      pasoDetalles.hidden = !html;
+      calcular();
+    };
+    const calcular = () => {
+      const a = asuntoActual();
+      if (!a) return;
+      const d = new FormData(form);
+      const p = presupuesto({
+        area: area(), asunto: a.id, extras: d.getAll('extras').map(String),
+        tramo: Number(d.get('tramo') ?? 0), herederos: Number(d.get('herederos') ?? 2), testamento: d.get('testamento') !== 'no',
+        importe: Number(d.get('importe') ?? 0),
+      });
+      if (!p) return;
+      const f = (n: number) => euros(iva.checked ? conIva(n) : n);
+      const sufijo = iva.checked ? 'IVA incluido' : 'más IVA';
+      let textoPrecio: string;
+      if (p.tipo === 'porcentaje' && p.porcentaje) {
+        rango.textContent = `${p.porcentaje[0]}–${p.porcentaje[1]} %`;
+        textoPrecio = p.estimado ? `De lo que se obtenga, sin adelantos. Con ${euros(Number(d.get('importe')))}, serían unos ${f(p.estimado[0])} – ${f(p.estimado[1])} (${sufijo}).` : `De lo que se obtenga, sin adelantos. Mínimo ${f(p.minimo ?? 0)} (${sufijo}).`;
+      } else {
+        rango.textContent = `${f(p.rango[0])} – ${f(p.rango[1])}`;
+        textoPrecio = `Precio cerrado, ${sufijo}. Lo ajustamos al ver tu caso.`;
+      }
+      explica.textContent = textoPrecio;
+      incluye.innerHTML = p.incluye.map((i) => `<li>${CHECK}<span>${esc(i)}</span></li>`).join('');
+      const nombreArea = datos.areas.find((x) => x.clave === area())?.nombre ?? '';
+      resumenActual = `${p.nombre} (${nombreArea}): ${rango.textContent}. ${textoPrecio}`;
+      wa.href = whatsappCon(`Hola, he calculado el presupuesto en vuestra web. ${resumenActual} ¿Lo podemos confirmar?`);
+      cita.href = `/contacto/?area=${encodeURIComponent(area())}#cita`;
+      (formEmail.elements.namedItem('area') as HTMLInputElement).value = nombreArea;
+      (formEmail.elements.namedItem('resumen') as HTMLInputElement).value = resumenActual;
+    };
+
+    form.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.name === 'area') pintarAsuntos();
+      else if (t.name === 'asunto') pintarDetalles();
+      else calcular();
+    });
+    form.addEventListener('input', calcular);
+    iva.addEventListener('change', calcular);
+    pintarAsuntos();
+
+    abrirEmail.addEventListener('click', () => { formEmail.hidden = false; marcarInicio(formEmail); formEmail.querySelector<HTMLInputElement>('input:not([type=hidden])')?.focus(); });
+    formEmail.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const error = formEmail.querySelector<HTMLElement>('.error-form')!;
+      const listo = formEmail.querySelector<HTMLElement>('.listo')!;
+      if (!validarCampos(formEmail, error)) return;
+      const r = await enviar(formEmail);
+      if (r.ok) {
+        [...formEmail.children].forEach((n) => { if (n !== listo) (n as HTMLElement).hidden = true; });
+        listo.innerHTML = '<p class="titulo">Enviado.</p><p>Te mandamos el presupuesto y te llamamos para confirmarlo.</p>';
+        listo.hidden = false;
+        listo.focus();
+      } else {
+        error.innerHTML = r.sinServidor ? `No pudimos enviarlo desde aquí. <a href="${esc(wa.href)}">Recíbelo por WhatsApp</a>.` : esc(r.mensaje ?? 'No pudimos enviarlo.');
+        error.hidden = false;
+      }
+    });
+  });
+</script>

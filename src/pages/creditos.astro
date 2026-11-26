@@ -1,0 +1,20 @@
+---
+// Créditos de las fotos (Wikimedia Commons), generados desde src/data/fotos.json.
+import PaginaLegal from '../layouts/PaginaLegal.astro';
+import fotos from '../data/fotos.json';
+---
+<PaginaLegal title="Créditos de las fotografías" description="Autores y licencias de las fotografías de esta web." h1="Créditos de las fotografías" actualizado="26 de noviembre de 2026" ruta="/creditos/">
+  <p>Las fotografías de esta web proceden de Wikimedia Commons y se usan bajo las licencias que indica cada una. Algunas están recortadas o redimensionadas.</p>
+  <table>
+    <thead><tr><th>Foto</th><th>Autor</th><th>Licencia</th></tr></thead>
+    <tbody>
+      {fotos.map((f) => (
+        <tr>
+          <td><a href={f.fuente}>{f.titulo}</a></td>
+          <td>{f.autor}</td>
+          <td>{f.licenciaUrl ? <a href={f.licenciaUrl}>{f.licencia}</a> : f.licencia}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</PaginaLegal>

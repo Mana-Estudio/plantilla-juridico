@@ -1,0 +1,54 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Migas from '../../components/Migas.astro';
+import Foto from '../../components/Foto.astro';
+import CtaFinal from '../../components/CtaFinal.astro';
+import { areaPorClave } from '../../data/areas';
+import { migasJsonld } from '../../lib/seo';
+import { fechaLarga } from '../../lib/calculos';
+const articulos = (await getCollection('blog')).sort((a, b) => b.data.fecha.getTime() - a.data.fecha.getTime());
+const migas = [{ nombre: 'Blog' }];
+const [primero, ...resto] = articulos;
+---
+<Base title="Blog: derecho explicado claro" description="Artículos para entender tu situación antes de decidir: despidos, herencias, divorcios, plazos y más." jsonld={[migasJsonld(migas, '/blog/')]}>
+  <Migas items={migas} />
+  <section class="cabecera-pagina" aria-labelledby="titulo">
+    <div class="contenedor">
+      <div class="grilla" data-entrada>
+        <div><p class="etiqueta">Blog</p><h1 id="titulo">El derecho, <em>explicado claro</em></h1></div>
+        <p class="entradilla secundario">Para entender tu situación antes de decidir. Sin tecnicismos y con las fechas que importan.</p>
+      </div>
+    </div>
+  </section>
+  {primero && (
+    <section class="seccion-corta" aria-label="Último artículo">
+      <div class="contenedor">
+        <a class="fila-area" href={`/blog/${primero.id}/`}>
+          <span class="marco"><Foto slug={primero.data.foto} prioridad sizes="(min-width: 64rem) 45vw, 100vw" anchos={[480, 800, 1200]} /></span>
+          <span class="texto">
+            <span class="etiqueta">{areaPorClave(primero.data.area)?.nombre ?? 'General'} · {fechaLarga(primero.data.fecha)}</span>
+            <h2>{primero.data.titulo}</h2>
+            <span class="secundario">{primero.data.descripcion}</span>
+            <span class="enlace-flecha">Leer</span>
+          </span>
+        </a>
+      </div>
+    </section>
+  )}
+  <section class="seccion" aria-label="Más artículos">
+    <div class="contenedor">
+      <ul class="articulos" role="list">
+        {resto.map((a) => (
+          <li><a class="tarjeta-articulo" href={`/blog/${a.id}/`}>
+            <span class="marco"><Foto slug={a.data.foto} sizes="(min-width: 48rem) 30vw, 100vw" anchos={[480, 720]} /></span>
+            <span class="meta">{areaPorClave(a.data.area)?.nombre ?? 'General'} · {fechaLarga(a.data.fecha)}</span>
+            <h3>{a.data.titulo}</h3>
+            <p>{a.data.descripcion}</p>
+          </a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+  <CtaFinal />
+</Base>

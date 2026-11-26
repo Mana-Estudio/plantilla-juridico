@@ -1,0 +1,24 @@
+---
+// Derechos de una persona detenida (Ley de Enjuiciamiento Criminal, art. 520; Constitución, art. 17).
+import Icono from './Icono.astro';
+import { despacho } from '../data/despacho';
+const derechos = [
+  'Que te informen por escrito de los hechos que se te atribuyen, de los motivos de la detención y de tus derechos.',
+  'Guardar silencio, no declarar si no quieres y no responder a alguna o a todas las preguntas.',
+  'No declarar contra ti mismo ni confesarte culpable.',
+  'Designar un abogado y que te asista en la declaración; si no lo designas, te asignan uno de oficio.',
+  'Acceder a los elementos del expediente esenciales para impugnar la detención.',
+  'Que se comunique tu detención a un familiar o a la persona que quieras.',
+  'Un intérprete gratuito si no entiendes el castellano.',
+  'Que te examine un médico forense.',
+];
+---
+<div class="dos-col">
+  <div class="cabecera-seccion">
+    <p class="etiqueta">Si te detienen</p>
+    <h2>Tus derechos, <em>en ocho puntos</em></h2>
+    <p class="secundario">Una detención no puede durar más de 72 horas: después, libertad o puesta a disposición del juez. Pide que llamen a tu abogado antes de declarar.</p>
+    <div class="botones"><a class="boton" href={despacho.contacto.urgenciasHref} data-evento="llamar-urgencias"><Icono nombre="telefono" />Guardia 24 h: {despacho.contacto.urgencias}</a></div>
+  </div>
+  <ol class="derechos" role="list">{derechos.map((d) => <li>{d}</li>)}</ol>
+</div>

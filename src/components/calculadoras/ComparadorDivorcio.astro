@@ -1,0 +1,26 @@
+---
+// Los tres caminos de un divorcio, comparados (precios de honorarios.ts).
+import { asuntos } from '../../data/honorarios';
+import { euros } from '../../lib/calculos';
+const precio = (id: string) => {
+  const a = asuntos.familia.find((x) => x.id === id);
+  return a && a.precio.tipo === 'cerrado' ? `${euros(a.precio.rango[0])} – ${euros(a.precio.rango[1])}` : '—';
+};
+---
+<div class="tabla-desplazable">
+  <table class="comparador">
+    <caption class="oculto">Comparación de los tres tipos de divorcio</caption>
+    <thead>
+      <tr><th scope="col"><span class="oculto">Aspecto</span></th><th scope="col">Ante notario</th><th scope="col">Mutuo acuerdo en el juzgado</th><th scope="col">Contencioso</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">Cuándo</th><td>De acuerdo y sin hijos menores</td><td>De acuerdo y con hijos menores</td><td>Sin acuerdo en algo importante</td></tr>
+      <tr><th scope="row">Cuánto tarda</th><td>Unas semanas</td><td>Entre 1 y 3 meses</td><td>De 6 meses a más de un año</td></tr>
+      <tr><th scope="row">Abogado</th><td>Obligatorio (puede ser uno para los dos)</td><td>Uno para los dos</td><td>Uno para cada parte</td></tr>
+      <tr><th scope="row">Honorarios</th><td>{precio('divorcio-notario')}</td><td>{precio('divorcio-mutuo')}</td><td>{precio('divorcio-contencioso')}</td></tr>
+      <tr><th scope="row">Otros costes</th><td>Notaría</td><td>Procurador</td><td>Procurador y, a veces, peritos</td></tr>
+    </tbody>
+  </table>
+</div>
+<p class="nota-legal">Honorarios orientativos por persona o pareja, sin IVA. Si empezáis por un contencioso y llegáis a un acuerdo, se puede pasar a mutuo acuerdo.</p>
+<div class="botones"><a class="boton" href="/presupuesto/?area=familia" data-evento="presupuesto" data-evento-detalle="familia">Calcular el presupuesto de mi divorcio</a></div>

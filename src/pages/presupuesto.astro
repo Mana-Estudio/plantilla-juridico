@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import Migas from '../components/Migas.astro';
+import Presupuestador from '../components/Presupuestador.astro';
+import Compromisos from '../components/Compromisos.astro';
+import Faqs from '../components/Faqs.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { migasJsonld, faqJsonld } from '../lib/seo';
+import { primeraConsulta } from '../data/honorarios';
+const migas = [{ nombre: 'Presupuesto' }];
+const preguntas = [
+  { p: '¿El presupuesto es definitivo?', r: 'Es orientativo. Al ver tu caso te damos el precio definitivo por escrito en la hoja de encargo, antes de empezar.' },
+  { p: '¿Qué no está incluido?', r: 'El procurador (obligatorio en la mayoría de juicios), los peritos si hacen falta, la notaría, los registros y las tasas o impuestos.' },
+  { p: '¿Se puede pagar a plazos?', r: 'Sí. En los precios cerrados solemos dividir el pago por fases: una parte al empezar y el resto según avanza el asunto.' },
+  { p: '¿Cuánto cuesta la primera consulta?', r: `${primeraConsulta.precio} € + IVA, ${primeraConsulta.duracion}. ${primeraConsulta.texto}` },
+];
+---
+<Base title="Presupuesto de abogado al momento" description="Calcula cuánto costaría tu asunto: divorcio, herencia, despido, accidente, defensa penal o reclamación de deudas. Precio orientativo al momento." jsonld={[migasJsonld(migas, '/presupuesto/'), faqJsonld(preguntas)]}>
+  <Migas items={migas} />
+  <section class="cabecera-pagina" aria-labelledby="titulo">
+    <div class="contenedor">
+      <div class="grilla" data-entrada>
+        <div><p class="etiqueta">Presupuestador</p><h1 id="titulo">¿Cuánto costaría <em>tu asunto?</em></h1></div>
+        <p class="entradilla secundario">Tres preguntas y te damos un precio orientativo al momento. El definitivo, por escrito antes de empezar.</p>
+      </div>
+    </div>
+  </section>
+  <section class="seccion-corta" aria-label="Presupuestador">
+    <div class="contenedor"><Presupuestador /></div>
+  </section>
+  <section class="seccion fondo-lino" aria-labelledby="compromisos-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion"><p class="etiqueta">Nuestros compromisos</p><h2 id="compromisos-titulo">Lo que te garantizamos <em>es cómo trabajamos</em></h2><p class="secundario">No prometemos resultados: ningún abogado puede hacerlo. Sí te garantizamos esto.</p></header>
+      <Compromisos />
+    </div>
+  </section>
+  <section class="seccion" aria-labelledby="faq-titulo">
+    <div class="contenedor dos-col">
+      <header class="cabecera-seccion"><p class="etiqueta">Preguntas frecuentes</p><h2 id="faq-titulo">Sobre el presupuesto</h2><a class="enlace-flecha" href="/honorarios/">Cómo cobramos</a></header>
+      <Faqs preguntas={preguntas} />
+    </div>
+  </section>
+  <CtaFinal />
+</Base>

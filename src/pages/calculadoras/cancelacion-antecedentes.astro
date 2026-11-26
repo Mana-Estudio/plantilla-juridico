@@ -1,0 +1,28 @@
+---
+import PaginaCalculadora from '../../layouts/PaginaCalculadora.astro';
+import Antecedentes from '../../components/calculadoras/Antecedentes.astro';
+const preguntas = [
+  { p: '¿Los antecedentes se borran solos?', r: 'Pueden cancelarse de oficio, pero no siempre ocurre a tiempo. Pedirlo al Ministerio de Justicia evita sorpresas al solicitar un certificado.' },
+  { p: '¿Qué pasa si vuelvo a delinquir durante el plazo?', r: 'No se pueden cancelar hasta que se cumplan los requisitos también para la nueva condena.' },
+  { p: '¿Cuánto tarda la cancelación?', r: 'Una vez pedida, el Ministerio suele resolver en pocos meses. La pedimos por ti y hacemos el seguimiento.' },
+];
+---
+<PaginaCalculadora slug="cancelacion-antecedentes" area="penal" preguntas={preguntas}
+  title="Calculadora de cancelación de antecedentes penales"
+  description="Calcula desde qué fecha puedes pedir la cancelación de tus antecedentes penales según la pena impuesta (Código Penal, art. 136)."
+  h1="¿Cuándo puedo cancelar mis antecedentes penales?"
+  entradilla="La fecha desde la que puedes pedir que se cancelen, según la pena y cuándo se cumplió.">
+  <Antecedentes slot="herramienta" />
+  <p>El Código Penal (art. 136) fija cuánto tiempo hay que esperar, sin volver a delinquir, desde que se cumplió la pena:</p>
+  <table>
+    <thead><tr><th>Pena</th><th>Plazo</th></tr></thead>
+    <tbody>
+      <tr><td>Leve</td><td>6 meses</td></tr>
+      <tr><td>Hasta 12 meses, o por delito imprudente</td><td>2 años</td></tr>
+      <tr><td>Menos grave de menos de 3 años</td><td>3 años</td></tr>
+      <tr><td>Menos grave de 3 años o más</td><td>5 años</td></tr>
+      <tr><td>Grave</td><td>10 años</td></tr>
+    </tbody>
+  </table>
+  <p>El plazo empieza a contar el día siguiente a aquel en que se extinguió la pena. Si se suspendió, desde que terminó el periodo de suspensión.</p>
+</PaginaCalculadora>

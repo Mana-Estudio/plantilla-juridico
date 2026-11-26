@@ -1,0 +1,35 @@
+---
+// Cancelación de antecedentes penales (Código Penal, art. 136.2).
+import { PENAS } from '../../lib/calculos';
+---
+<section class="calculadora" aria-label="Calculadora de cancelación de antecedentes penales">
+  <form class="entrada" data-calc="antecedentes" novalidate>
+    <p class="formulario-titulo">¿Cuándo puedo cancelar mis antecedentes?</p>
+    <div class="campo"><label for="ant-pena">Pena impuesta</label><select id="ant-pena" name="pena">{Object.entries(PENAS).map(([k, v]) => <option value={k} selected={k === 'hasta12'}>{v.nombre}</option>)}</select></div>
+    <div class="campo"><label for="ant-fecha">Fecha en que se cumplió (o se extinguió) la pena</label><input id="ant-fecha" name="extincion" type="date" data-hace="400" /><span class="ayuda">Si la pena se suspendió, la fecha en que terminó la suspensión.</span></div>
+  </form>
+  <div class="salida" aria-live="polite" data-salida="antecedentes"><p class="vacio">Completa los datos.</p></div>
+</section>
+<script>
+  import { cancelacionAntecedentes, fechaLarga, numero, aInput, sumarDias, deInput, PENAS, type TipoPena } from '../../lib/calculos';
+  import { alCambiar, acciones, txt } from '../../scripts/calc-comun';
+  document.querySelectorAll<HTMLFormElement>('form[data-calc="antecedentes"]').forEach((form) => {
+    const salida = form.parentElement!.querySelector<HTMLElement>('[data-salida="antecedentes"]')!;
+    form.querySelectorAll<HTMLInputElement>('[data-hace]').forEach((i) => { if (!i.value) i.value = aInput(sumarDias(new Date(), -Number(i.dataset.hace))); });
+    alCambiar(form, () => {
+      const extincion = deInput(txt(form, 'extincion'));
+      if (!extincion) { salida.innerHTML = '<p class="vacio">Indica la fecha.</p>'; return; }
+      const pena = txt(form, 'pena') as TipoPena;
+      const r = cancelacionAntecedentes(pena, extincion);
+      const plazo = r.meses < 12 ? `${r.meses} meses` : `${r.meses / 12} años`;
+      const texto = `Hola, quería cancelar mis antecedentes penales: ${PENAS[pena].nombre.toLowerCase()}, cumplida el ${extincion.toLocaleDateString('es-ES')}. ¿Me ayudáis con la solicitud?`;
+      salida.innerHTML = `
+        <p class="estado ${r.yaPuede ? 'a-tiempo' : 'urgente'}">${r.yaPuede ? 'Ya puedes pedirla' : 'Todavía no'}</p>
+        <p class="etiqueta">Podrás pedir la cancelación desde</p>
+        <p class="cifra-grande">${fechaLarga(r.fechaCancelacion)}</p>
+        <p>${r.yaPuede ? 'El plazo ya pasó.' : `Faltan ${numero(r.restantes)} días.`} Plazo para esta pena: ${plazo} desde el día siguiente a su extinción.</p>
+        <p class="nota-legal">Código Penal, art. 136. Además del plazo, no puedes haber vuelto a delinquir en ese tiempo. Si se cumplen los requisitos, la cancelación también puede hacerse de oficio, pero pedirla evita esperas.</p>
+        ${acciones(texto, 'penal')}`;
+    });
+  });
+</script>

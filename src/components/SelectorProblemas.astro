@@ -1,0 +1,16 @@
+---
+// "¿Qué necesitas resolver?": la persona elige su problema con sus palabras y llega al área que le toca.
+import Icono from './Icono.astro';
+import { areas } from '../data/areas';
+---
+<ul class="problemas" role="list">
+  {areas.map((a, i) => (
+    <li>
+      <a class="problema" href={`/areas/${a.slug}/`} data-evento="problema" data-evento-detalle={a.clave}>
+        <span class="num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+        <span class="texto">{a.problema}<span class="area">{a.nombre}</span></span>
+        <span class="ir" aria-hidden="true"><Icono nombre="flecha" /></span>
+      </a>
+    </li>
+  ))}
+</ul>

@@ -1,0 +1,15 @@
+---
+import { despacho } from '../data/despacho';
+---
+<section class="confianza" aria-label="El despacho en cifras">
+  <div class="contenedor">
+    <ul role="list">
+      {despacho.cifras.map((c) => (
+        <li>
+          <p class="cifra">{c.valor}<small>{c.unidad}</small></p>
+          <p>{c.texto}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

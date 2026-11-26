@@ -1,0 +1,12 @@
+---
+import Icono from './Icono.astro';
+import IconoWhatsapp from './IconoWhatsapp.astro';
+import { despacho, whatsapp as wa } from '../data/despacho';
+interface Props { whatsapp?: string }
+const { whatsapp } = Astro.props;
+---
+<nav class="barra-movil" aria-label="Contacto rápido">
+  <a href={wa(whatsapp)} data-evento="whatsapp" data-evento-detalle="barra-movil"><IconoWhatsapp />WhatsApp</a>
+  <a href={despacho.contacto.telefonoHref} data-evento="llamar" data-evento-detalle="barra-movil"><Icono nombre="telefono" />Llamar</a>
+  <a class="principal" href="/contacto/#cita" data-evento="cita" data-evento-detalle="barra-movil">Pedir cita</a>
+</nav>

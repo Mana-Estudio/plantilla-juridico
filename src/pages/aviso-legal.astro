@@ -1,0 +1,31 @@
+---
+// Aviso legal con lo que pide la LSSI (Ley 34/2002, art. 10) a una profesión regulada. Datos de EJEMPLO:
+// en un cliente, los reales, y que el despacho revise el texto.
+import PaginaLegal from '../layouts/PaginaLegal.astro';
+import { despacho, equipo } from '../data/despacho';
+---
+<PaginaLegal title="Aviso legal" description={`Aviso legal de ${despacho.razonSocial}: titular, colegiación y condiciones de uso de la web.`} h1="Aviso legal" actualizado="26 de noviembre de 2026" ruta="/aviso-legal/">
+  <h2>Titular de la web</h2>
+  <table>
+    <tbody>
+      <tr><th>Titular</th><td>{despacho.razonSocial}</td></tr>
+      <tr><th>NIF</th><td>{despacho.nif}</td></tr>
+      <tr><th>Domicilio</th><td>{despacho.direccion.calle}, {despacho.direccion.cp} {despacho.direccion.ciudad}</td></tr>
+      <tr><th>Registro</th><td>{despacho.registro}</td></tr>
+      <tr><th>Contacto</th><td>{despacho.contacto.email} · {despacho.contacto.telefono}</td></tr>
+    </tbody>
+  </table>
+  <h2>Profesión regulada</h2>
+  <p>Los servicios se prestan por abogados en ejercicio, colegiados en el <a href={despacho.colegioUrl}>{despacho.colegio}</a>:</p>
+  <ul>{equipo.map((p) => <li>{p.nombre}, {p.colegiada}.</li>)}</ul>
+  <p>Título: Licenciatura o Grado en Derecho y, para quienes se colegiaron después de 2011, Máster de Acceso a la Abogacía y examen de acceso, expedidos en España.</p>
+  <p>Normas profesionales aplicables: Estatuto General de la Abogacía Española (Real Decreto 135/2021), Código Deontológico de la Abogacía Española y Ley Orgánica 5/2024, del Derecho de Defensa, que se pueden consultar en la web del Consejo General de la Abogacía Española.</p>
+  <p>{despacho.seguroRc}.</p>
+  <h2>Condiciones de uso</h2>
+  <p>La información de esta web es general y no constituye asesoramiento jurídico para un caso concreto. Las calculadoras ofrecen resultados orientativos que dependen de los datos introducidos y no sustituyen la revisión de un abogado.</p>
+  <p>Escribirnos por la web, por email o por WhatsApp no crea por sí mismo una relación de servicios profesionales: el encargo se formaliza con la hoja de encargo.</p>
+  <h2>Propiedad intelectual</h2>
+  <p>Los textos y el diseño de la web son de {despacho.razonSocial} o se usan con licencia. Las fotografías proceden de Wikimedia Commons con licencias libres; sus autores y licencias se indican en <a href="/creditos/">créditos</a>.</p>
+  <h2>Ley aplicable</h2>
+  <p>Este aviso se rige por la ley española. Para cualquier controversia con consumidores serán competentes los juzgados de su domicilio.</p>
+</PaginaLegal>

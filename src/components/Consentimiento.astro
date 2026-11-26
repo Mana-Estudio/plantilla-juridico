@@ -1,0 +1,18 @@
+---
+// Casilla de consentimiento + primera capa de información (RGPD y LOPDGDD) y campo trampa antispam.
+import { despacho } from '../data/despacho';
+interface Props { id: string }
+const { id } = Astro.props;
+---
+<div class="trampa" aria-hidden="true"><label for={`${id}-web`}>No completar</label><input id={`${id}-web`} name="web" tabindex="-1" autocomplete="off" /></div>
+<label class="consentimiento"><input type="checkbox" name="privacidad" value="si" required /><span>He leído la información sobre protección de datos y acepto que me contactéis para responder a mi solicitud.</span></label>
+<details class="capa-rgpd">
+  <summary>Información básica sobre protección de datos</summary>
+  <dl>
+    <dt>Responsable</dt><dd>{despacho.razonSocial}</dd>
+    <dt>Finalidad</dt><dd>Responder a tu solicitud y, si lo pides, concertar una cita.</dd>
+    <dt>Legitimación</dt><dd>Tu consentimiento.</dd>
+    <dt>Destinatarios</dt><dd>No cedemos tus datos, salvo obligación legal.</dd>
+    <dt>Derechos</dt><dd>Acceso, rectificación, supresión y los demás que explica la <a href="/privacidad/">política de privacidad</a>.</dd>
+  </dl>
+</details>

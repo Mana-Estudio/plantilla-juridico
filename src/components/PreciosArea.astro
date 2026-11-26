@@ -1,0 +1,26 @@
+---
+// Precios orientativos de un área (de honorarios.ts), sin IVA.
+import { asuntos, tramosHerencia } from '../data/honorarios';
+import { euros } from '../lib/calculos';
+interface Props { clave: string }
+const { clave } = Astro.props;
+const lista = asuntos[clave] ?? [];
+const importe = (a: (typeof lista)[number]) => {
+  if (a.precio.tipo === 'porcentaje') return { valor: `${a.precio.rango[0]}–${a.precio.rango[1]} %`, nota: `de lo obtenido · mín. ${euros(a.precio.minimo)}` };
+  if (a.precio.tipo === 'herencia') return { valor: `desde ${euros(tramosHerencia[0].rango[0])}`, nota: 'según el valor de la herencia' };
+  return { valor: `${euros(a.precio.rango[0])} – ${euros(a.precio.rango[1])}`, nota: 'precio cerrado' };
+};
+---
+<div class="precios">
+  {lista.map((a) => {
+    const i = importe(a);
+    return (
+      <div class="precio-fila">
+        <h3>{a.nombre}</h3>
+        <p class="detalle">{a.detalle ?? a.incluye.slice(0, 2).join(' · ')}</p>
+        <p class="importe">{i.valor}<small>{i.nota}</small></p>
+      </div>
+    );
+  })}
+</div>
+<p class="nota-legal">Orientativos, sin IVA. El precio definitivo va por escrito en la hoja de encargo, antes de empezar. No incluyen procurador, peritos ni tasas.</p>

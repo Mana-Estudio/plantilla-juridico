@@ -1,0 +1,55 @@
+---
+// Calculadora de indemnización por despido (ET art. 56, 52.c y 49.1.c; DT 11.ª). Orientativa.
+---
+<section class="calculadora" aria-label="Calculadora de indemnización por despido">
+  <form class="entrada" data-calc="despido" novalidate>
+    <p class="formulario-titulo">Calcula tu indemnización</p>
+    <fieldset class="paso">
+      <legend class="sub">Tipo de despido</legend>
+      <div class="opciones lista">
+        <label class="opcion"><input type="radio" name="tipo" value="improcedente" checked /><span>Improcedente<small>33 días por año (45 antes del 12/02/2012), máximo 24 mensualidades</small></span></label>
+        <label class="opcion"><input type="radio" name="tipo" value="objetivo" /><span>Objetivo procedente<small>20 días por año, máximo 12 mensualidades</small></span></label>
+        <label class="opcion"><input type="radio" name="tipo" value="temporal" /><span>Fin de contrato temporal<small>12 días por año</small></span></label>
+      </div>
+    </fieldset>
+    <div class="campos dos">
+      <div class="campo"><label for="desp-inicio">Empezaste a trabajar</label><input id="desp-inicio" name="inicio" type="date" value="2016-03-01" required /></div>
+      <div class="campo"><label for="desp-fin">Fecha del despido</label><input id="desp-fin" name="fin" type="date" required data-hoy /></div>
+    </div>
+    <div class="campos dos">
+      <div class="campo"><label for="desp-mensual">Salario bruto mensual</label><input id="desp-mensual" name="mensual" type="number" min="0" step="10" value="2000" inputmode="decimal" /><span class="ayuda">El de tu nómina, antes de impuestos.</span></div>
+      <div class="campo"><label for="desp-pagas">Número de pagas</label><select id="desp-pagas" name="pagas"><option value="14" selected>14 (con dos extra)</option><option value="12">12 (prorrateadas)</option></select></div>
+    </div>
+  </form>
+  <div class="salida" aria-live="polite" data-salida="despido"><p class="vacio">Completa los datos para ver el cálculo.</p></div>
+</section>
+<script>
+  import { indemnizacionDespido, euros, numero, deInput, aInput, type TipoDespido } from '../../lib/calculos';
+  import { alCambiar, acciones, num, txt, dmy } from '../../scripts/calc-comun';
+  const NOMBRE: Record<TipoDespido, string> = { improcedente: 'improcedente', objetivo: 'objetivo procedente', temporal: 'fin de contrato temporal' };
+  document.querySelectorAll<HTMLFormElement>('form[data-calc="despido"]').forEach((form) => {
+    const salida = form.parentElement!.querySelector<HTMLElement>('[data-salida="despido"]')!;
+    form.querySelectorAll<HTMLInputElement>('[data-hoy]').forEach((i) => { if (!i.value) i.value = aInput(new Date()); });
+    alCambiar(form, () => {
+      const inicio = deInput(txt(form, 'inicio'));
+      const fin = deInput(txt(form, 'fin'));
+      const anual = num(form, 'mensual') * num(form, 'pagas');
+      if (!inicio || !fin || fin <= inicio || anual <= 0) { salida.innerHTML = '<p class="vacio">Revisa las fechas y el salario: la fecha del despido tiene que ser posterior al inicio.</p>'; return; }
+      const tipo = txt(form, 'tipo') as TipoDespido;
+      const r = indemnizacionDespido({ inicio, fin, salarioAnual: anual, tipo });
+      const tramos = r.tramos.map((t) => `<div><dt>${dmy(t.desde)} – ${dmy(t.hasta)} · ${t.meses} meses a ${t.diasPorAno} días/año</dt><dd>${numero(t.dias, 2)} días</dd></div>`).join('');
+      const texto = `Hola, he usado la calculadora de despido de vuestra web: despido ${NOMBRE[tipo]}, del ${dmy(inicio)} al ${dmy(fin)}, con ${euros(num(form, 'mensual'))} brutos al mes en ${num(form, 'pagas')} pagas. Me sale una indemnización de ${euros(r.importe)}. ¿Podéis revisar mi caso?`;
+      salida.innerHTML = `
+        <p class="etiqueta">Indemnización orientativa</p>
+        <p class="cifra-grande">${euros(r.importe)}</p>
+        <p>${numero(r.dias, 2)} días de salario, a ${euros(r.salarioDia, 2)} por día.</p>
+        <dl class="desglose">
+          ${tramos}
+          <div><dt>Salario bruto anual</dt><dd>${euros(anual)}</dd></div>
+          ${r.topeAplicado ? `<div><dt>Tope legal aplicado</dt><dd>${numero(r.tope, 0)} días</dd></div>` : ''}
+        </dl>
+        <p class="nota-legal">Cálculo orientativo con el prorrateo por meses que aplican los juzgados. No incluye salarios de tramitación, vacaciones ni el finiquito. Tienes 20 días hábiles desde el despido para reclamar.</p>
+        ${acciones(texto, 'laboral')}`;
+    });
+  });
+</script>

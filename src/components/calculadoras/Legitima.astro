@@ -1,0 +1,41 @@
+---
+// Calculadora del reparto de una herencia: legítimas del Código Civil (régimen común, aplicable en Madrid).
+---
+<section class="calculadora" aria-label="Calculadora del reparto de una herencia">
+  <form class="entrada" data-calc="legitima" novalidate>
+    <p class="formulario-titulo">¿Cómo se reparte una herencia?</p>
+    <div class="campo"><label for="leg-valor">Valor aproximado de la herencia</label><input id="leg-valor" name="valor" type="number" min="0" step="1000" value="300000" inputmode="decimal" /><span class="ayuda">Bienes menos deudas, en euros.</span></div>
+    <div class="campos dos">
+      <div class="campo"><label for="leg-hijos">Hijos (o sus descendientes)</label><select id="leg-hijos" name="hijos">{[0, 1, 2, 3, 4, 5, 6].map((n) => <option value={n} selected={n === 2}>{n}</option>)}</select></div>
+      <div class="campo"><label for="leg-conyuge">¿Vive el cónyuge?</label><select id="leg-conyuge" name="conyuge"><option value="si" selected>Sí</option><option value="no">No</option></select></div>
+    </div>
+    <div class="campo" data-padres hidden><label for="leg-padres">¿Viven los padres del fallecido?</label><select id="leg-padres" name="padres"><option value="si">Sí, al menos uno</option><option value="no" selected>No</option></select></div>
+  </form>
+  <div class="salida" aria-live="polite" data-salida="legitima"><p class="vacio">Completa los datos para ver el reparto.</p></div>
+</section>
+<script>
+  import { legitima, euros } from '../../lib/calculos';
+  import { alCambiar, acciones, num, txt } from '../../scripts/calc-comun';
+  document.querySelectorAll<HTMLFormElement>('form[data-calc="legitima"]').forEach((form) => {
+    const salida = form.parentElement!.querySelector<HTMLElement>('[data-salida="legitima"]')!;
+    const campoPadres = form.querySelector<HTMLElement>('[data-padres]')!;
+    alCambiar(form, () => {
+      const valor = num(form, 'valor');
+      const hijos = num(form, 'hijos');
+      campoPadres.hidden = hijos > 0;
+      const r = legitima({ valor, hijos, conyuge: txt(form, 'conyuge') === 'si', padres: hijos === 0 && txt(form, 'padres') === 'si' });
+      const barras = r.partes.map((p) => `<span data-p="${valor > 0 ? (p.valor / valor) * 100 : 0}"></span>`).join('');
+      const filas = r.partes.map((p) => `<div><dt>${p.nombre}<br><small>${p.texto}</small></dt><dd>${euros(p.valor)}</dd></div>`).join('');
+      const texto = `Hola, he usado la calculadora de herencias de vuestra web: herencia de unos ${euros(valor)}, ${hijos} hijos, cónyuge ${txt(form, 'conyuge') === 'si' ? 'vivo' : 'fallecido'}. Quería que me ayudarais con el reparto.`;
+      salida.innerHTML = `
+        <p class="etiqueta">${r.caso === 'hijos' ? 'Con hijos, la herencia se divide en tercios' : 'Reparto según el Código Civil'}</p>
+        ${r.porHijo !== undefined ? `<p class="cifra-grande">${euros(r.porHijo)} <small>de legítima estricta por hijo, como mínimo</small></p>` : `<p class="cifra-grande">${euros(r.partes[0].valor)} <small>${r.partes[0].nombre.toLowerCase()}</small></p>`}
+        <div class="reparto" aria-hidden="true">${barras}</div>
+        <dl class="desglose">${filas}</dl>
+        ${r.usufructoConyuge ? `<p>${r.usufructoConyuge.texto} Equivale a usar o cobrar las rentas de ${euros(r.usufructoConyuge.sobre)} de por vida.</p>` : ''}
+        <p class="nota-legal">Orientativo, para el Código Civil común (Madrid). Si no hay testamento el reparto es otro, y en Cataluña, País Vasco, Aragón, Navarra, Galicia o Baleares rigen sus propias leyes. No incluye impuestos: en Madrid, hijos, cónyuge y padres tienen una bonificación del 99 % en el impuesto de sucesiones.</p>
+        ${acciones(texto, 'herencias')}`;
+      salida.querySelectorAll<HTMLElement>('.reparto span').forEach((s) => { s.style.width = `${s.dataset.p}%`; });
+    });
+  });
+</script>

@@ -1,0 +1,31 @@
+{
+  "name": "mana-plantilla-juridico",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plantilla de Maná para despachos de abogados en España: sitio completo con cotizadores, calculadoras y captación.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check && tsc -p worker",
+    "fotos": "node scripts/descargar-fotos.mjs",
+    "probar": "node --test tests/",
+    "worker:dev": "wrangler dev",
+    "deploy": "astro build && wrangler deploy"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.6",
+    "astro": "^7.4.13",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@cloudflare/workers-types": "^5.20261125.1",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.168.0"
+  }
+}

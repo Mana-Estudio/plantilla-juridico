@@ -1,0 +1,10 @@
+---
+import Icono from './Icono.astro';
+import { despacho } from '../data/despacho';
+const iconos = ['reloj', 'documento', 'persona', 'chat'] as const;
+---
+<ul class="compromisos" role="list">
+  {despacho.compromisos.map((c, i) => (
+    <li><Icono nombre={iconos[i % iconos.length]} /><h3>{c.titulo}</h3><p>{c.texto}</p></li>
+  ))}
+</ul>

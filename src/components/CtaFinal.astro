@@ -1,0 +1,21 @@
+---
+// Cierre oscuro de cada página: las cuatro vías para empezar.
+import Icono from './Icono.astro';
+import { despacho, whatsapp } from '../data/despacho';
+interface Props { titulo?: string; texto?: string; mensajeWhatsapp?: string }
+const { titulo = 'Cuéntanos tu caso.', texto = 'Te decimos cómo podemos ayudarte y cuánto costará, antes de empezar.', mensajeWhatsapp } = Astro.props;
+---
+<section class="seccion fondo-tinta cta-final" aria-labelledby="cta-titulo">
+  <div class="contenedor">
+    <div>
+      <p class="etiqueta">Hablemos</p>
+      <h2 id="cta-titulo">{titulo} <em>{texto}</em></h2>
+    </div>
+    <div class="vias">
+      <a class="via" href="/contacto/#cita" data-evento="cita" data-evento-detalle="cierre"><span><strong>Pedir cita</strong><span>En el despacho, por videollamada o por teléfono</span></span><Icono nombre="flecha" /></a>
+      <a class="via" href="/contacto/#valoracion" data-evento="valoracion" data-evento-detalle="cierre"><span><strong>Valorar mi caso</strong><span>Tres preguntas y te contactamos</span></span><Icono nombre="flecha" /></a>
+      <a class="via" href={whatsapp(mensajeWhatsapp)} data-evento="whatsapp" data-evento-detalle="cierre"><span><strong>WhatsApp</strong><span>Escríbenos y te contestamos hoy</span></span><Icono nombre="flecha" /></a>
+      <a class="via" href={despacho.contacto.telefonoHref} data-evento="llamar" data-evento-detalle="cierre"><span><strong>{despacho.contacto.telefono}</strong><span>{despacho.horario[0].dias}, {despacho.horario[0].horas}</span></span><Icono nombre="flecha" /></a>
+    </div>
+  </div>
+</section>

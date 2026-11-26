@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import Migas from '../components/Migas.astro';
+import Foto from '../components/Foto.astro';
+import Opiniones from '../components/Opiniones.astro';
+import Casos from '../components/Casos.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { despacho } from '../data/despacho';
+import { migasJsonld } from '../lib/seo';
+import og from '../assets/fotos/retiro-bancos.jpg';
+const migas = [{ nombre: 'Opiniones y casos' }];
+---
+<Base title="Opiniones y casos" description={`${despacho.google.nota.toLocaleString('es-ES')} sobre 5 en ${despacho.google.total} opiniones de Google. Lee lo que dicen nuestros clientes y cómo resolvimos casos parecidos al tuyo.`} og={og} jsonld={[migasJsonld(migas, '/opiniones/')]}>
+  <Migas items={migas} />
+  <section class="cabecera-pagina" aria-labelledby="titulo">
+    <div class="contenedor">
+      <div class="grilla" data-entrada>
+        <div><p class="etiqueta">Opiniones y casos</p><h1 id="titulo">Lo que dicen <em>nuestros clientes</em></h1></div>
+        <p class="entradilla secundario">Opiniones publicadas en Google y casos reales, anonimizados y con permiso de los clientes.</p>
+      </div>
+      <div class="marco"><Foto slug="retiro-bancos" prioridad sizes="100vw" anchos={[480, 960]} /></div>
+    </div>
+  </section>
+  <section class="seccion" aria-labelledby="opiniones-titulo">
+    <div class="contenedor">
+      <h2 id="opiniones-titulo" class="oculto">Opiniones de Google</h2>
+      <Opiniones filtros />
+    </div>
+  </section>
+  <section class="seccion fondo-lino" aria-labelledby="casos-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion"><p class="etiqueta">Casos</p><h2 id="casos-titulo">Cómo resolvimos <em>casos parecidos</em></h2></header>
+      <Casos tres />
+    </div>
+  </section>
+  <CtaFinal titulo="¿Tu caso se parece a alguno?" />
+</Base>

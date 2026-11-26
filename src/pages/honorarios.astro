@@ -1,0 +1,101 @@
+---
+import Base from '../layouts/Base.astro';
+import Migas from '../components/Migas.astro';
+import Foto from '../components/Foto.astro';
+import Icono from '../components/Icono.astro';
+import HojaEncargo from '../components/HojaEncargo.astro';
+import PreciosArea from '../components/PreciosArea.astro';
+import Faqs from '../components/Faqs.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { areas } from '../data/areas';
+import { modalidades, noIncluye, primeraConsulta } from '../data/honorarios';
+import { migasJsonld, faqJsonld } from '../lib/seo';
+import og from '../assets/fotos/pluma-sobre-papel.jpg';
+const migas = [{ nombre: 'Honorarios' }];
+const preguntas = [
+  { p: '¿Está permitido cobrar un porcentaje de lo que se gane?', r: 'Sí. En España la cuota litis está permitida. Siempre la pactamos por escrito y te explicamos qué pasa si no se obtiene nada.' },
+  { p: '¿Qué es la condena en costas?', r: 'Si pierdes un juicio civil, el juez puede condenarte a pagar parte de los honorarios del abogado y del procurador de la otra parte. Te explicamos ese riesgo antes de empezar.' },
+  { p: '¿Tengo derecho a abogado gratis?', r: 'Si tus ingresos no superan ciertos límites, puedes pedir asistencia jurídica gratuita al Colegio de la Abogacía. Te decimos si te corresponde.' },
+  { p: '¿Puedo pedir la hoja de encargo aunque sea un asunto pequeño?', r: 'Sí, siempre. Es tu derecho como cliente y la damos en todos los asuntos.' },
+];
+---
+<Base title="Honorarios: cuánto cuesta un abogado" description="Cómo cobramos: precio cerrado, por fases, porcentaje de lo obtenido o cuota mensual. Precios orientativos por área y hoja de encargo antes de empezar." og={og} jsonld={[migasJsonld(migas, '/honorarios/'), faqJsonld(preguntas)]}>
+  <Migas items={migas} />
+  <section class="cabecera-pagina" aria-labelledby="titulo">
+    <div class="contenedor">
+      <div class="grilla">
+        <div data-entrada>
+          <p class="etiqueta">Honorarios</p>
+          <h1 id="titulo">Sabrás lo que cuesta <em>antes de empezar</em></h1>
+          <p class="entradilla secundario">Por escrito, sin letra pequeña y con todos los costes que pueden aparecer.</p>
+          <div class="botones"><a class="boton" href="/presupuesto/">Calcular mi presupuesto</a></div>
+        </div>
+        <HojaEncargo filas={[['Qué haremos', 'Y qué queda fuera'], ['Honorarios', 'Cómo y cuándo se pagan'], ['Otros costes', 'Procurador, peritos, tasas'], ['Costas', 'El riesgo, explicado']]} />
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion fondo-lino" aria-labelledby="modalidades-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion"><p class="etiqueta">Formas de cobro</p><h2 id="modalidades-titulo">Cuatro formas, <em>según el asunto</em></h2></header>
+      <ul class="compromisos" role="list">
+        {modalidades.map((m) => <li><Icono nombre="euro" /><h3>{m.nombre}</h3><p>{m.texto}</p></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="consulta-titulo">
+    <div class="contenedor dos-col mitad">
+      <div class="foto-marco marco-ancho"><Foto slug="pluma-sobre-papel" sizes="(min-width: 64rem) 45vw, 100vw" anchos={[480, 800, 1200]} /></div>
+      <div class="cabecera-seccion">
+        <p class="etiqueta">Primera consulta</p>
+        <h2 id="consulta-titulo">{primeraConsulta.precio} € <em>+ IVA</em></h2>
+        <p class="entradilla">{primeraConsulta.duracion} para entender tu caso, explicarte las opciones y darte un presupuesto.</p>
+        <p class="secundario">{primeraConsulta.texto} En el despacho, por videollamada o por teléfono.</p>
+        <div class="botones"><a class="boton" href="/contacto/#cita">Pedir la primera consulta</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion fondo-lino" aria-labelledby="precios-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion"><p class="etiqueta">Precios orientativos</p><h2 id="precios-titulo">Por área</h2><p class="secundario">Sin IVA. Te damos el precio definitivo por escrito al ver tu caso.</p></header>
+      <div class="filas-precios">
+        {areas.map((a) => (
+          <div class="dos-col">
+            <div class="cabecera-seccion"><h3>{a.nombre}</h3><a class="enlace-flecha" href={`/presupuesto/?area=${a.clave}`}>Calcular</a></div>
+            <PreciosArea clave={a.clave} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="no-incluye-titulo">
+    <div class="contenedor dos-col">
+      <div class="cabecera-seccion"><p class="etiqueta">Otros costes</p><h2 id="no-incluye-titulo">Lo que no son <em>nuestros honorarios</em></h2><p class="secundario">Te los anticipamos en la hoja de encargo para que no haya sorpresas.</p></div>
+      <ul class="servicios" role="list">{noIncluye.map((n) => <li class="servicio"><Icono nombre="alerta" /><div><h3>{n.nombre}</h3><p>{n.texto}</p></div></li>)}</ul>
+    </div>
+  </section>
+
+  <section class="seccion fondo-lino" aria-labelledby="derecho-titulo">
+    <div class="contenedor dos-col">
+      <div class="cabecera-seccion">
+        <p class="etiqueta">Tu derecho</p>
+        <h2 id="derecho-titulo">La hoja de encargo</h2>
+      </div>
+      <div class="prosa">
+        <p>La <strong>Ley Orgánica 5/2024, del Derecho de Defensa</strong>, reconoce tu derecho a recibir del abogado una hoja de encargo con el presupuesto previo de honorarios y costes, y a que te informe de los costes generales del proceso y del riesgo de costas.</p>
+        <p>Nosotros la damos siempre, también en los asuntos pequeños, y no empezamos a trabajar sin que la hayas leído y firmado.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="faq-titulo">
+    <div class="contenedor dos-col">
+      <header class="cabecera-seccion"><p class="etiqueta">Preguntas frecuentes</p><h2 id="faq-titulo">Sobre los honorarios</h2></header>
+      <Faqs preguntas={preguntas} />
+    </div>
+  </section>
+  <CtaFinal />
+</Base>

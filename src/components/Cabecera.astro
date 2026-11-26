@@ -1,0 +1,65 @@
+---
+import Icono from './Icono.astro';
+import { despacho, navegacion } from '../data/despacho';
+import { areas } from '../data/areas';
+
+interface Props { urgencia?: boolean }
+const { urgencia = false } = Astro.props;
+const ruta = Astro.url.pathname;
+const actual = (href: string) => (href === '/' ? ruta === '/' : ruta.startsWith(href));
+---
+<header class="cabecera" id="cabecera">
+  <div class="contenedor cabecera-fila">
+    <a class="marca" href="/" aria-label={`${despacho.nombre}, inicio`}>
+      <span class="marca-nombre">{despacho.nombre}</span>
+      <span class="marca-sub">{despacho.sufijo}</span>
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <ul role="list">
+        <li class="desplegable">
+          <details>
+            <summary class:list={[{ activo: actual('/areas/') }]}>Áreas <Icono nombre="abajo" /></summary>
+            <div class="panel-areas">
+              {areas.map((a) => (
+                <a href={`/areas/${a.slug}/`} aria-current={actual(`/areas/${a.slug}/`) ? 'page' : undefined}>
+                  <strong>{a.nombre}</strong>
+                  <span>{a.resumen}</span>
+                </a>
+              ))}
+              <a class="todas" href="/areas/">Ver todas las áreas →</a>
+            </div>
+          </details>
+        </li>
+        {navegacion.slice(1).map((n) => (
+          <li><a href={n.href} aria-current={actual(n.href) ? 'page' : undefined}>{n.nombre}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <div class="cabecera-acciones">
+      <a class="cabecera-tel" href={despacho.contacto.telefonoHref} data-evento="llamar" data-evento-detalle="cabecera"><Icono nombre="telefono" />{despacho.contacto.telefono}</a>
+      <a class="boton boton-chico cabecera-cta" href="/contacto/#cita" data-evento="cita" data-evento-detalle="cabecera">Pedir cita</a>
+      <button class="menu-boton" type="button" aria-expanded="false" aria-controls="menu-movil"><span class="rayas" aria-hidden="true"><i></i><i></i></span>Menú</button>
+    </div>
+  </div>
+</header>
+<div class="menu-movil" id="menu-movil" hidden>
+  <ul role="list">
+    <li><a href="/areas/">Áreas de práctica <Icono nombre="flecha" /></a></li>
+    {areas.map((a) => <li class="sub"><a href={`/areas/${a.slug}/`}>{a.nombre}</a></li>)}
+    {navegacion.slice(1).map((n) => <li><a href={n.href}>{n.nombre}</a></li>)}
+    <li><a href="/presupuesto/">Calcular presupuesto</a></li>
+  </ul>
+  <div class="botones">
+    <a class="boton" href="/contacto/#cita">Pedir cita</a>
+    <a class="boton boton-linea" href={despacho.contacto.telefonoHref}><Icono nombre="telefono" />Llamar: {despacho.contacto.telefono}</a>
+  </div>
+</div>
+<div class="cabecera-espacio" aria-hidden="true"></div>
+{urgencia && (
+  <div class="urgencia">
+    <div class="contenedor">
+      <span><span class="oculto">Urgente: </span>¿Han detenido a alguien de tu familia? Guardia penal las 24 horas.</span>
+      <a href={despacho.contacto.urgenciasHref} data-evento="llamar-urgencias"><span class="pulso" aria-hidden="true"></span>Llamar a la guardia: {despacho.contacto.urgencias}</a>
+    </div>
+  </div>
+)}

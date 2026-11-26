@@ -1,0 +1,87 @@
+---
+import Base from '../layouts/Base.astro';
+import Migas from '../components/Migas.astro';
+import Foto from '../components/Foto.astro';
+import Icono from '../components/Icono.astro';
+import Equipo from '../components/Equipo.astro';
+import Compromisos from '../components/Compromisos.astro';
+import BarraConfianza from '../components/BarraConfianza.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { despacho } from '../data/despacho';
+import { migasJsonld } from '../lib/seo';
+import og from '../assets/fotos/sala-lectura-artesonado.jpg';
+const migas = [{ nombre: 'El despacho' }];
+const valores = [
+  { titulo: 'Decir la verdad', texto: 'Preferimos decirte la verdad sobre tu caso a decirte lo que quieres oír. Si no merece la pena litigar, te lo decimos.' },
+  { titulo: 'Estudiar a fondo', texto: 'Cada asunto se prepara como si fuera a juicio, aunque termine en un acuerdo.' },
+  { titulo: 'Hablar claro', texto: 'Sin tecnicismos. Si algo no se entiende, es culpa nuestra.' },
+  { titulo: 'Estar localizables', texto: 'Teléfono, email y WhatsApp del abogado que lleva tu asunto.' },
+];
+---
+<Base title="El despacho y el equipo" description={`${despacho.nombre}: abogados colegiados en el ICAM desde 2008, en ${despacho.direccion.barrio} (Madrid). Conoce al equipo, cómo trabajamos y dónde estamos.`} og={og} jsonld={[migasJsonld(migas, '/despacho/')]}>
+  <Migas items={migas} />
+  <section class="cabecera-area" aria-labelledby="titulo">
+    <div class="foto-fondo"><Foto slug="sala-lectura-artesonado" prioridad sizes="(min-width: 64rem) 50vw, 100vw" /></div>
+    <div class="panel" data-entrada>
+      <p class="etiqueta">El despacho</p>
+      <h1 id="titulo">Desde 2008, <em>en {despacho.direccion.barrio}</em></h1>
+      <p class="entradilla">Un despacho de tamaño humano: tres abogados que llevan personalmente cada asunto, con la preparación de un despacho grande y el trato de uno pequeño.</p>
+      <div class="botones"><a class="boton" href="/contacto/#cita">Pedir cita</a><a class="enlace-flecha" href="#equipo">Conoce al equipo</a></div>
+    </div>
+  </section>
+
+  <BarraConfianza />
+
+  <section class="seccion" aria-labelledby="valores-titulo">
+    <div class="contenedor dos-col">
+      <div class="cabecera-seccion pegajoso">
+        <p class="etiqueta">Cómo somos</p>
+        <h2 id="valores-titulo">Cuatro ideas <em>que no negociamos</em></h2>
+      </div>
+      <ol class="situaciones una-col" role="list">{valores.map((v) => <li class="situacion"><h3>{v.titulo}</h3><p>{v.texto}</p></li>)}</ol>
+    </div>
+  </section>
+
+  <section class="seccion fondo-lino" id="equipo" aria-labelledby="equipo-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion"><p class="etiqueta">El equipo</p><h2 id="equipo-titulo">Las personas <em>que llevarán tu caso</em></h2></header>
+      <Equipo />
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="credenciales-titulo">
+    <div class="contenedor dos-col">
+      <div class="cabecera-seccion">
+        <p class="etiqueta">Credenciales</p>
+        <h2 id="credenciales-titulo">Colegiación <em>y formación</em></h2>
+        <p class="secundario">Todos los abogados del despacho están colegiados y tienen el seguro de responsabilidad civil que exige el Estatuto General de la Abogacía.</p>
+      </div>
+      <ul class="credenciales" role="list">{despacho.credenciales.map((c) => <li><Icono nombre="escudo" /><span>{c}</span></li>)}</ul>
+    </div>
+  </section>
+
+  <section class="seccion fondo-tinta" aria-labelledby="compromisos-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion"><p class="etiqueta">Compromisos</p><h2 id="compromisos-titulo">Lo que puedes <em>exigirnos</em></h2></header>
+      <Compromisos />
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="oficina-titulo">
+    <div class="contenedor dos-col mitad">
+      <div class="foto-marco marco-ancho"><Foto slug="portal-clasico" sizes="(min-width: 64rem) 45vw, 100vw" anchos={[480, 800, 1200, 1600]} /></div>
+      <div>
+        <header class="cabecera-seccion"><p class="etiqueta">La oficina</p><h2 id="oficina-titulo">{despacho.direccion.calle.split(',')[0]}</h2></header>
+        <dl class="lista-datos">
+          <div><dt>Dirección</dt><dd>{despacho.direccion.calle}<br />{despacho.direccion.cp} {despacho.direccion.ciudad}</dd></div>
+          <div><dt>Metro</dt><dd>{despacho.direccion.metro}</dd></div>
+          <div><dt>Coche</dt><dd>{despacho.direccion.aparcamiento}</dd></div>
+          <div><dt>Accesibilidad</dt><dd>{despacho.direccion.accesible}</dd></div>
+          {despacho.horario.map((h) => <div><dt>{h.dias}</dt><dd>{h.horas}</dd></div>)}
+        </dl>
+        <div class="botones"><a class="boton boton-linea" href={despacho.direccion.mapa}><Icono nombre="mapa" />Cómo llegar</a></div>
+      </div>
+    </div>
+  </section>
+  <CtaFinal />
+</Base>

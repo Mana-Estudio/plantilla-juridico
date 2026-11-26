@@ -1,0 +1,52 @@
+---
+// "¿Estoy a tiempo de reclamar?": fecha límite de los plazos más consultados.
+import { PLAZOS } from '../../lib/calculos';
+interface Props { inicial?: keyof typeof PLAZOS }
+const { inicial = 'trafico' } = Astro.props;
+---
+<section class="calculadora" aria-label="Calculadora de plazos para reclamar">
+  <form class="entrada" data-calc="plazos" novalidate data-plazos={JSON.stringify(Object.fromEntries(Object.entries(PLAZOS).map(([k, v]) => [k, v.desde])))}>
+    <p class="formulario-titulo">¿Estoy a tiempo de reclamar?</p>
+    <div class="campo">
+      <label for="plazo-tipo">Qué quieres hacer</label>
+      <select id="plazo-tipo" name="tipo">{Object.entries(PLAZOS).map(([k, v]) => <option value={k} selected={k === inicial}>{v.nombre}</option>)}</select>
+    </div>
+    <div class="campo"><label for="plazo-desde" data-etiqueta-desde>{PLAZOS[inicial].desde}</label><input id="plazo-desde" name="desde" type="date" required data-hace="30" /></div>
+  </form>
+  <div class="salida" aria-live="polite" data-salida="plazos"><p class="vacio">Elige qué quieres hacer y la fecha.</p></div>
+</section>
+<script>
+  import { calcularPlazo, PLAZOS, fechaLarga, numero, aInput, sumarDias, deInput, type TipoPlazo } from '../../lib/calculos';
+  import { alCambiar, acciones, txt } from '../../scripts/calc-comun';
+  const AREA: Record<string, string> = { despido: 'laboral', sancion: 'laboral', salarios: 'laboral', trafico: 'trafico', multa: 'trafico', sucesiones: 'herencias', deuda: 'empresas' };
+  document.querySelectorAll<HTMLFormElement>('form[data-calc="plazos"]').forEach((form) => {
+    const salida = form.parentElement!.querySelector<HTMLElement>('[data-salida="plazos"]')!;
+    const etiqueta = form.querySelector<HTMLElement>('[data-etiqueta-desde]')!;
+    const desdes = JSON.parse(form.dataset.plazos ?? '{}') as Record<string, string>;
+    const pedido = new URLSearchParams(location.search).get('plazo');
+    if (pedido && pedido in PLAZOS) (form.elements.namedItem('tipo') as HTMLSelectElement).value = pedido;
+    form.querySelectorAll<HTMLInputElement>('[data-hace]').forEach((i) => { if (!i.value) i.value = aInput(sumarDias(new Date(), -Number(i.dataset.hace))); });
+    alCambiar(form, () => {
+      const tipo = txt(form, 'tipo') as TipoPlazo;
+      etiqueta.textContent = desdes[tipo];
+      const desde = deInput(txt(form, 'desde'));
+      if (!desde) { salida.innerHTML = '<p class="vacio">Indica la fecha.</p>'; return; }
+      const p = PLAZOS[tipo];
+      const r = calcularPlazo(tipo, desde);
+      const ESTADO = { 'a-tiempo': 'Estás a tiempo', urgente: 'Queda muy poco', vencido: 'El plazo parece vencido' };
+      const restantes = r.restantes >= 0 ? `Quedan ${numero(r.restantes)} días naturales.` : `Venció hace ${numero(-r.restantes)} días. Aun así, consúltanos: a veces hay formas de interrumpirlo o de reclamar por otra vía.`;
+      const texto = `Hola, he usado la calculadora de plazos de vuestra web para «${p.nombre.toLowerCase()}» desde el ${desde.toLocaleDateString('es-ES')}: me sale que el plazo termina el ${r.limite.toLocaleDateString('es-ES')}. ¿Podéis revisarlo?`;
+      salida.innerHTML = `
+        <p class="estado ${r.estado}">${ESTADO[r.estado]}</p>
+        <p class="etiqueta">Fecha límite orientativa</p>
+        <p class="cifra-grande">${fechaLarga(r.limite)}</p>
+        <p>${restantes}</p>
+        <dl class="desglose">
+          <div><dt>Plazo</dt><dd>${r.unidad}</dd></div>
+          <div><dt>Norma</dt><dd>${p.ley}</dd></div>
+        </dl>
+        <p class="nota-legal">${p.nota} Los días hábiles se cuentan con los festivos nacionales y de la ciudad de Madrid; un cambio de festivo o una suspensión pueden mover la fecha. Confírmalo con un abogado.</p>
+        ${acciones(texto, AREA[tipo] ?? 'laboral')}`;
+    });
+  });
+</script>

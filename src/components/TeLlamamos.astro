@@ -1,0 +1,68 @@
+---
+// "Te llamamos": la vía más corta para quien prefiere hablar. Nombre, teléfono, franja y área.
+import Consentimiento from './Consentimiento.astro';
+import Icono from './Icono.astro';
+import { areas } from '../data/areas';
+import { FRANJAS } from '../lib/formulario';
+interface Props { area?: string; id?: string; titulo?: string }
+const { area, id = 'llamada', titulo = 'Te llamamos' } = Astro.props;
+---
+<form class="formulario" id={id} data-form="llamada" novalidate>
+  <input type="hidden" name="tipo" value="llamada" />
+  <div class="listo-oculto">
+    <p class="formulario-titulo">{titulo}</p>
+    <p class="secundario">Déjanos tu teléfono y te llamamos en la franja que elijas, sin compromiso.</p>
+  </div>
+  <div class="campos dos">
+    <div class="campo"><label for={`${id}-nombre`}>Nombre</label><input id={`${id}-nombre`} name="nombre" autocomplete="name" required minlength="2" maxlength="100" /></div>
+    <div class="campo"><label for={`${id}-telefono`}>Teléfono</label><input id={`${id}-telefono`} name="telefono" type="tel" autocomplete="tel" required pattern="[0-9+\(\)\s.\-]{9,20}" /></div>
+  </div>
+  <div class="campo">
+    <label for={`${id}-area`}>Sobre qué</label>
+    <select id={`${id}-area`} name="area">
+      {areas.map((a) => <option value={a.nombre} selected={a.clave === area}>{a.nombre}</option>)}
+      <option value="Otro asunto">Otro asunto</option>
+    </select>
+  </div>
+  <fieldset class="paso">
+    <legend class="oculto">Cuándo te llamamos</legend>
+    <p class="campo label">¿Cuándo te viene bien?</p>
+    <div class="opciones">
+      {FRANJAS.map((f, i) => <label class="opcion"><input type="radio" name="franja" value={f} required={i === 0} checked={i === 0} /><span>{f}</span></label>)}
+    </div>
+  </fieldset>
+  <Consentimiento id={id} />
+  <p class="error-form" role="alert" hidden></p>
+  <button class="boton" type="submit" data-evento="llamada"><Icono nombre="telefono" />Que me llamen</button>
+  <div class="listo" role="status" tabindex="-1" hidden></div>
+</form>
+<script>
+  import { enviar, marcarInicio, validarCampos, whatsappCon, esc } from '../scripts/envio';
+  document.querySelectorAll<HTMLFormElement>('form[data-form="llamada"]').forEach((form) => {
+    marcarInicio(form);
+    const error = form.querySelector<HTMLElement>('.error-form')!;
+    const listo = form.querySelector<HTMLElement>('.listo')!;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validarCampos(form, error)) return;
+      const boton = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+      boton.disabled = true;
+      const datos = new FormData(form);
+      const r = await enviar(form);
+      boton.disabled = false;
+      if (r.ok) {
+        form.querySelectorAll(':scope > :not(.listo)').forEach((n) => ((n as HTMLElement).hidden = true));
+        listo.innerHTML = `<span class="marca-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12.5 4.2 4.2L19 7"/></svg></span><p class="titulo">Te llamamos ${esc(String(datos.get('franja')).toLowerCase())}.</p><p class="secundario">Al ${esc(datos.get('telefono'))}. Si es urgente, llámanos tú.</p>`;
+        listo.hidden = false;
+        listo.focus();
+      } else if (r.sinServidor) {
+        const texto = `Hola, soy ${datos.get('nombre')}. ¿Me podéis llamar ${String(datos.get('franja')).toLowerCase()} al ${datos.get('telefono')}? Es sobre ${datos.get('area')}.`;
+        error.innerHTML = `No pudimos enviar el formulario desde aquí. <a href="${whatsappCon(texto)}">Envíalo por WhatsApp</a> o llámanos.`;
+        error.hidden = false;
+      } else {
+        error.textContent = r.mensaje ?? 'No pudimos enviarlo. Inténtalo de nuevo o llámanos.';
+        error.hidden = false;
+      }
+    });
+  });
+</script>

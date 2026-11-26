@@ -1,0 +1,23 @@
+---
+import PaginaCalculadora from '../../layouts/PaginaCalculadora.astro';
+import Intereses from '../../components/calculadoras/Intereses.astro';
+const preguntas = [
+  { p: '¿Hace falta reclamar los intereses para cobrarlos?', r: 'No. Entre empresas, los intereses de demora se devengan solos desde el día siguiente al vencimiento, sin necesidad de aviso (Ley 3/2004).' },
+  { p: '¿Qué son los 40 € por factura?', r: 'Una compensación fija por los costes de cobro que la ley reconoce al acreedor por cada factura pagada tarde, además de los intereses.' },
+  { p: '¿Cuál es el plazo máximo para pagar una factura?', r: '60 días entre empresas, y no se puede alargar por acuerdo. Si no se pactó nada, 30 días desde la entrega.' },
+  { p: '¿Sirve también para particulares?', r: 'No: la Ley 3/2004 es para operaciones entre empresas o con la Administración. Con un particular se reclama el interés legal del dinero.' },
+];
+---
+<PaginaCalculadora slug="intereses-de-demora" area="empresas" preguntas={preguntas}
+  title="Calculadora de intereses de demora por impago de facturas"
+  description="Calcula cuánto te debe un cliente con intereses de demora y la compensación de 40 € por factura (Ley 3/2004 de morosidad)."
+  h1="Calculadora de intereses por impago"
+  entradilla="Lo que puedes reclamar a un cliente que paga tarde: principal, intereses de demora y 40 € por factura.">
+  <Intereses slot="herramienta" />
+  <p>La Ley 3/2004, de lucha contra la morosidad en las operaciones comerciales, da al acreedor dos derechos cuando una empresa paga tarde:</p>
+  <ul>
+    <li><strong>Intereses de demora</strong> desde el día siguiente al vencimiento, al tipo del Banco Central Europeo más ocho puntos. El Ministerio de Hacienda publica el tipo cada semestre en el BOE.</li>
+    <li><strong>40 € por factura</strong> como compensación por los costes de cobro, sin tener que justificarlos.</li>
+  </ul>
+  <p>El cálculo es de interés simple: importe × tipo × días de retraso ÷ 365.</p>
+</PaginaCalculadora>

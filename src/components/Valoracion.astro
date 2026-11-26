@@ -1,0 +1,135 @@
+---
+// Valoración del caso en 4 pantallas: asunto → plazos y modalidad → datos → revisar y enviar (o WhatsApp).
+import Consentimiento from './Consentimiento.astro';
+import Icono from './Icono.astro';
+import { areas } from '../data/areas';
+import { MODALIDADES, URGENCIAS } from '../lib/formulario';
+interface Props { area?: string }
+const { area } = Astro.props;
+---
+<form class="formulario" id="valoracion" data-form="consulta" novalidate>
+  <input type="hidden" name="tipo" value="consulta" />
+  <div class="progreso" aria-hidden="true"><i class="hecho"></i><i></i><i></i><i></i></div>
+  <p class="paso-estado" aria-live="polite">Paso 1 de 4 · El asunto</p>
+
+  <fieldset class="paso" data-paso="El asunto">
+    <legend>¿Sobre qué es tu consulta?</legend>
+    <div class="opciones rejilla">
+      {areas.map((a, i) => <label class="opcion"><input type="radio" name="area" value={a.nombre} required={i === 0} checked={a.clave === area} /><span>{a.nombre}</span></label>)}
+      <label class="opcion"><input type="radio" name="area" value="Otro asunto" /><span>Otro asunto</span></label>
+    </div>
+  </fieldset>
+
+  <fieldset class="paso" data-paso="Plazos" hidden>
+    <legend>¿Hay algún plazo encima?</legend>
+    <div class="opciones lista">
+      {URGENCIAS.map((u, i) => <label class="opcion"><input type="radio" name="urgencia" value={u} required={i === 0} /><span>{u}{i === 0 && <small>Un juicio, una notificación, una carta con fecha</small>}</span></label>)}
+    </div>
+    <p class="sub">¿Cómo prefieres la primera reunión?</p>
+    <div class="opciones">
+      {MODALIDADES.map((m, i) => <label class="opcion"><input type="radio" name="modalidad" value={m} required={i === 0} /><span>{m}</span></label>)}
+    </div>
+  </fieldset>
+
+  <fieldset class="paso" data-paso="Tus datos" hidden>
+    <legend>¿Cómo te contactamos?</legend>
+    <div class="campos dos">
+      <div class="campo"><label for="val-nombre">Nombre</label><input id="val-nombre" name="nombre" autocomplete="name" required minlength="2" maxlength="100" /></div>
+      <div class="campo"><label for="val-telefono">Teléfono</label><input id="val-telefono" name="telefono" type="tel" autocomplete="tel" required pattern="[0-9+\(\)\s.\-]{9,20}" /></div>
+    </div>
+    <div class="campo"><label for="val-email">Email <span class="ayuda">(opcional)</span></label><input id="val-email" name="email" type="email" autocomplete="email" maxlength="160" /></div>
+    <div class="campo"><label for="val-mensaje">Cuéntanoslo en pocas líneas</label><textarea id="val-mensaje" name="mensaje" maxlength="1500" aria-describedby="val-ayuda"></textarea><span class="ayuda" id="val-ayuda">Lo justo para entender el asunto. Los detalles y los documentos, mejor en la reunión.</span></div>
+    <Consentimiento id="val" />
+  </fieldset>
+
+  <div class="paso" data-paso="Revisar y enviar" hidden>
+    <p class="legend">Revisa tu consulta</p>
+    <dl class="resumen" data-resumen></dl>
+    <div class="botones">
+      <button class="boton" type="submit" data-evento="valoracion-enviar">Enviar consulta<Icono nombre="flecha" class="icono flecha" /></button>
+      <a class="boton boton-linea" data-wa-resumen href="#" data-evento="valoracion-whatsapp">Enviar por WhatsApp</a>
+    </div>
+  </div>
+
+  <p class="error-form" role="alert" hidden></p>
+  <div class="form-nav">
+    <button class="atras" type="button" data-atras hidden>Atrás</button>
+    <button class="boton" type="button" data-siguiente>Siguiente<Icono nombre="flecha" class="icono flecha" /></button>
+  </div>
+  <div class="listo" role="status" tabindex="-1" hidden></div>
+</form>
+<script>
+  import { enviar, marcarInicio, validarCampos, whatsappCon } from '../scripts/envio';
+  const form = document.querySelector<HTMLFormElement>('form[data-form="consulta"]');
+  if (form) {
+    marcarInicio(form);
+    const pasos = [...form.querySelectorAll<HTMLElement>('.paso[data-paso]')];
+    const barras = [...form.querySelectorAll('.progreso i')];
+    const estado = form.querySelector<HTMLElement>('.paso-estado')!;
+    const atras = form.querySelector<HTMLButtonElement>('[data-atras]')!;
+    const siguiente = form.querySelector<HTMLButtonElement>('[data-siguiente]')!;
+    const nav = form.querySelector<HTMLElement>('.form-nav')!;
+    const error = form.querySelector<HTMLElement>('.error-form')!;
+    const listo = form.querySelector<HTMLElement>('.listo')!;
+    const resumen = form.querySelector<HTMLElement>('[data-resumen]')!;
+    const waResumen = form.querySelector<HTMLAnchorElement>('[data-wa-resumen]')!;
+    let actual = 0;
+    const valor = (n: string) => String(new FormData(form).get(n) ?? '').trim();
+    const texto = () => [`Hola, soy ${valor('nombre')}. Quería consultar un asunto de ${valor('area').toLowerCase()}.`, `Plazo: ${valor('urgencia').toLowerCase()}.`, `Prefiero la reunión ${valor('modalidad').toLowerCase()}.`, valor('mensaje')].filter(Boolean).join(' ');
+
+    const mostrar = (i: number) => {
+      actual = i;
+      pasos.forEach((p, k) => (p.hidden = k !== i));
+      barras.forEach((b, k) => b.classList.toggle('hecho', k <= i));
+      estado.textContent = `Paso ${i + 1} de ${pasos.length} · ${pasos[i].dataset.paso}`;
+      atras.hidden = i === 0;
+      siguiente.hidden = i === pasos.length - 1;
+      error.hidden = true;
+      if (i === pasos.length - 1) {
+        const filas: [string, string, number][] = [['Asunto', valor('area'), 0], ['Plazo', valor('urgencia'), 1], ['Reunión', valor('modalidad'), 1], ['Nombre', valor('nombre'), 2], ['Teléfono', valor('telefono'), 2], ['Email', valor('email') || '—', 2], ['Mensaje', valor('mensaje') || '—', 2]];
+        resumen.replaceChildren(...filas.map(([t, v, p]) => {
+          const fila = document.createElement('div');
+          const dt = document.createElement('dt'); dt.textContent = t;
+          const dd = document.createElement('dd'); dd.textContent = v;
+          const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Cambiar'; b.setAttribute('aria-label', `Cambiar ${t.toLowerCase()}`);
+          b.addEventListener('click', () => mostrar(p));
+          fila.append(dt, dd, b);
+          return fila;
+        }));
+        waResumen.href = whatsappCon(texto());
+      }
+    };
+    siguiente.addEventListener('click', () => {
+      if (!validarCampos(pasos[actual], error)) return;
+      mostrar(actual + 1);
+      form.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    });
+    atras.addEventListener('click', () => mostrar(Math.max(0, actual - 1)));
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const boton = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+      boton.disabled = true;
+      const r = await enviar(form);
+      boton.disabled = false;
+      if (r.ok) {
+        [...form.children].forEach((n) => { if (n !== listo) (n as HTMLElement).hidden = true; });
+        listo.innerHTML = `<span class="marca-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12.5 4.2 4.2L19 7"/></svg></span><p class="titulo">Consulta enviada.</p><p>Te contestamos en un día laborable como máximo. Si tienes un plazo encima, llámanos.</p>`;
+        listo.hidden = false;
+        listo.focus();
+      } else if (r.sinServidor) {
+        error.innerHTML = `No pudimos enviar la consulta desde aquí. <a href="${whatsappCon(texto())}">Envíala por WhatsApp</a> con todo ya escrito.`;
+        error.hidden = false;
+      } else {
+        error.textContent = r.mensaje ?? 'No pudimos enviarla. Inténtalo de nuevo o llámanos.';
+        error.hidden = false;
+      }
+    });
+    nav.hidden = false;
+    mostrar(0);
+    const pedida = new URLSearchParams(location.search).get('area');
+    if (pedida) {
+      const input = [...form.querySelectorAll<HTMLInputElement>('input[name="area"]')].find((x) => x.value.toLowerCase().includes(pedida.toLowerCase()));
+      if (input) input.checked = true;
+    }
+  }
+</script>

@@ -1,0 +1,25 @@
+---
+import PaginaCalculadora from '../../layouts/PaginaCalculadora.astro';
+import Legitima from '../../components/calculadoras/Legitima.astro';
+const preguntas = [
+  { p: '¿Puedo dejarle todo a un solo hijo?', r: 'No por completo: los demás hijos tienen derecho a su legítima estricta (un tercio de la herencia, repartido entre todos). Sí puedes dejarle el tercio de mejora y el de libre disposición.' },
+  { p: '¿Qué recibe el viudo o la viuda?', r: 'Con hijos, el usufructo del tercio de mejora: puede usar esos bienes o cobrar sus rentas de por vida. Sin hijos pero con padres, el usufructo de la mitad; sin hijos ni padres, el de dos tercios.' },
+  { p: '¿Y si no hay testamento?', r: 'Heredan por ley los hijos a partes iguales, con el usufructo del cónyuge sobre un tercio. Sin hijos, los padres; sin hijos ni padres, el cónyuge. Hace falta una declaración de herederos.' },
+  { p: '¿Se puede desheredar a un hijo?', r: 'Solo por las causas que fija el Código Civil (por ejemplo, maltrato o negar alimentos) y diciéndolo en el testamento. Si el hijo lo discute, hay que probar la causa.' },
+];
+---
+<PaginaCalculadora slug="reparto-herencia" area="herencias" preguntas={preguntas}
+  title="Calculadora del reparto de una herencia: legítimas"
+  description="Calcula cómo se reparte una herencia según el Código Civil: legítima, mejora, libre disposición y usufructo del cónyuge."
+  h1="¿Cómo se reparte una herencia?"
+  entradilla="Legítima, mejora y libre disposición según el Código Civil común, que es el que se aplica en Madrid.">
+  <Legitima slot="herramienta" />
+  <p>El Código Civil reserva una parte de la herencia a los familiares más cercanos, los <strong>herederos forzosos</strong>. Es la <strong>legítima</strong>, y el testamento no puede quitársela salvo causa de desheredación.</p>
+  <h3>Con hijos</h3>
+  <p>La herencia se divide en tres tercios: la <strong>legítima estricta</strong>, a partes iguales entre los hijos; el <strong>tercio de mejora</strong>, que el testador reparte entre hijos o nietos como quiera; y el <strong>tercio de libre disposición</strong>, para quien quiera (Código Civil, arts. 806 a 808).</p>
+  <h3>Sin hijos</h3>
+  <p>Los padres tienen derecho a la mitad de la herencia, o a un tercio si hay cónyuge viudo (art. 809). Sin hijos ni padres, no hay legítima en propiedad: solo el usufructo del cónyuge.</p>
+  <h3>El cónyuge viudo</h3>
+  <p>No hereda en propiedad por legítima, sino en <strong>usufructo</strong>: un tercio con hijos, la mitad con padres y dos tercios si no hay ni unos ni otros (arts. 834, 837 y 838).</p>
+  <p class="destacado">Cataluña, Aragón, Navarra, País Vasco, Galicia y Baleares tienen su propio derecho civil, con reglas distintas. Si el fallecido tenía allí su vecindad civil, el reparto cambia.</p>
+</PaginaCalculadora>

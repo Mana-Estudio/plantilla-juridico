@@ -1,0 +1,21 @@
+---
+import { casos, avisoCasos } from '../data/casos';
+import { areaPorClave } from '../data/areas';
+interface Props { area?: string; limite?: number; tres?: boolean }
+const { area, limite = 6, tres = false } = Astro.props;
+const lista = (area ? casos.filter((c) => c.area === area) : casos).slice(0, limite);
+---
+<ul class:list={['casos', { tres }]} role="list">
+  {lista.map((c) => (
+    <li class="caso">
+      <p class="meta"><span>{areaPorClave(c.area)?.nombre}</span><span>Duración: {c.plazo}</span></p>
+      <h3>{c.titulo}</h3>
+      <dl>
+        <div><dt>La situación</dt><dd>{c.situacion}</dd></div>
+        <div><dt>Qué hicimos</dt><dd>{c.hicimos}</dd></div>
+        <div class="resultado"><dt>Cómo terminó</dt><dd>{c.resultado}</dd></div>
+      </dl>
+    </li>
+  ))}
+</ul>
+<p class="nota-legal">{avisoCasos}</p>

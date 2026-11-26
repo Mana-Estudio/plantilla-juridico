@@ -1,0 +1,11 @@
+---
+// Migas de pan visibles; su JSON-LD (BreadcrumbList) lo arma migasJsonld() para pasarlo a Base.
+interface Props { items: { nombre: string; href?: string }[] }
+const { items } = Astro.props;
+---
+<nav class="migas contenedor" aria-label="Estás en">
+  <ol role="list">
+    <li><a href="/">Inicio</a></li>
+    {items.map((i) => (i.href ? <li><a href={i.href}>{i.nombre}</a></li> : <li aria-current="page">{i.nombre}</li>))}
+  </ol>
+</nav>

@@ -1,0 +1,46 @@
+---
+import Base from '../../layouts/Base.astro';
+import Migas from '../../components/Migas.astro';
+import Foto from '../../components/Foto.astro';
+import CtaFinal from '../../components/CtaFinal.astro';
+import { areas } from '../../data/areas';
+import { desdeArea } from '../../data/honorarios';
+import { migasJsonld } from '../../lib/seo';
+import og from '../../assets/fotos/salesas-reales.jpg';
+const migas = [{ nombre: 'Áreas de práctica' }];
+---
+<Base title="Áreas de práctica · Abogados en Madrid" description="Laboral, familia, herencias, accidentes de tráfico, penal y empresas. Qué llevamos en cada área, cómo trabajamos y cuánto cuesta." og={og} jsonld={[migasJsonld(migas, '/areas/')]}>
+  <Migas items={migas} />
+  <section class="cabecera-pagina" aria-labelledby="titulo">
+    <div class="contenedor">
+      <div class="grilla" data-entrada>
+        <div>
+          <p class="etiqueta">Áreas de práctica</p>
+          <h1 id="titulo">Lo que llevamos, <em>y cómo lo llevamos</em></h1>
+        </div>
+        <p class="entradilla secundario">Seis áreas con un mismo método: claridad desde la primera reunión, presupuesto por escrito y un abogado responsable de principio a fin.</p>
+      </div>
+      <div class="marco"><Foto slug="salesas-reales" prioridad sizes="100vw" /></div>
+    </div>
+  </section>
+  <section class="seccion" aria-label="Áreas">
+    <div class="contenedor">
+      <ol class="filas-areas" role="list">
+        {areas.map((a, i) => (
+          <li class="fila-area">
+            <a class="marco" href={`/areas/${a.slug}/`} tabindex="-1" aria-hidden="true"><Foto slug={a.foto} sizes="(min-width: 64rem) 45vw, 100vw" anchos={[480, 800, 1200]} /></a>
+            <div class="texto">
+              <span class="num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <h2><a href={`/areas/${a.slug}/`}>{a.nombre}</a></h2>
+              <p class="secundario">{a.bajada}</p>
+              <ul role="list">{a.servicios.slice(0, 6).map((s) => <li>{s.nombre}</li>)}</ul>
+              <p class="chip">{desdeArea(a.clave)}</p>
+              <a class="enlace-flecha" href={`/areas/${a.slug}/`}>Ver {a.corto.toLowerCase()}</a>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+  <CtaFinal />
+</Base>

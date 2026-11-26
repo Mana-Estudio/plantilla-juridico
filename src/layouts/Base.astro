@@ -1,0 +1,93 @@
+---
+// Plantilla de todas las páginas: <head> con SEO, Open Graph y datos estructurados; cabecera, pie y barra móvil.
+import '../styles/global.css';
+import { getImage } from 'astro:assets';
+import Cabecera from '../components/Cabecera.astro';
+import Pie from '../components/Pie.astro';
+import BarraMovil from '../components/BarraMovil.astro';
+import { despacho, nombreCompleto, equipo } from '../data/despacho';
+import { areas } from '../data/areas';
+import portada from '../assets/fotos/balcon-hierro-granito.jpg';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Foto para compartir (Open Graph): un import de src/assets. */
+  og?: ImageMetadata;
+  /** Datos estructurados extra de la página (FAQPage, BreadcrumbList, Article…). */
+  jsonld?: Record<string, unknown>[];
+  /** Texto del WhatsApp de la barra móvil, según la página. */
+  whatsapp?: string;
+  noindex?: boolean;
+  urgencia?: boolean;
+  tipoOg?: 'website' | 'article';
+}
+const { title, description, og = portada, jsonld = [], whatsapp, noindex = false, urgencia = false, tipoOg = 'website' } = Astro.props;
+const canonica = new URL(Astro.url.pathname, Astro.site).href;
+const imagenOg = await getImage({ src: og, width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 78 });
+const urlOg = new URL(imagenOg.src, Astro.site).href;
+const tituloCompleto = title.includes(despacho.nombre) ? title : `${title} · ${despacho.nombre}`;
+
+const negocio = {
+  '@context': 'https://schema.org',
+  '@type': 'LegalService',
+  '@id': `${despacho.url}/#despacho`,
+  name: nombreCompleto,
+  description: despacho.descripcion,
+  url: despacho.url,
+  telephone: despacho.contacto.telefono,
+  email: despacho.contacto.email,
+  image: urlOg,
+  priceRange: '€€',
+  address: { '@type': 'PostalAddress', streetAddress: despacho.direccion.calle, postalCode: despacho.direccion.cp, addressLocality: despacho.direccion.ciudad, addressRegion: 'Comunidad de Madrid', addressCountry: 'ES' },
+  geo: { '@type': 'GeoCoordinates', latitude: despacho.direccion.geo.lat, longitude: despacho.direccion.geo.lng },
+  areaServed: { '@type': 'AdministrativeArea', name: 'Comunidad de Madrid' },
+  knowsAbout: areas.map((a) => a.nombre),
+  knowsLanguage: ['es', 'en', 'fr'],
+  openingHoursSpecification: [
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday'], opens: '09:00', closes: '19:00' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Friday', opens: '09:00', closes: '15:00' },
+  ],
+  employee: equipo.map((p) => ({ '@type': 'Person', name: p.nombre, jobTitle: p.cargo })),
+};
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{tituloCompleto}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonica} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content="#f5f2ec" />
+    <meta name="page-type" content="service" />
+    <meta name="site-kind" content="other" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/newsreader.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content={tipoOg} />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:site_name" content={nombreCompleto} />
+    <meta property="og:title" content={tituloCompleto} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonica} />
+    <meta property="og:image" content={urlOg} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify([negocio, ...jsonld])} />
+  </head>
+  <body>
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+    <Cabecera urgencia={urgencia} />
+    <main id="contenido">
+      <slot />
+    </main>
+    <Pie />
+    <BarraMovil whatsapp={whatsapp} />
+    <script>
+      import '../scripts/base';
+    </script>
+  </body>
+</html>

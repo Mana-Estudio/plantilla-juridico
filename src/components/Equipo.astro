@@ -1,0 +1,23 @@
+---
+// Equipo. Sin fotos de personas en la plantilla (nunca poner caras de stock como si fueran el equipo):
+// retrato con iniciales hasta tener las fotos reales. En un cliente: sus fotos, en src/assets/equipo/.
+import { equipo } from '../data/despacho';
+import { areaPorClave } from '../data/areas';
+const iniciales = (n: string) => n.split(/\s+/).slice(0, 2).map((p) => p[0]).join('');
+---
+<ul class="equipo" role="list">
+  {equipo.map((p) => (
+    <li class="persona" id={p.slug}>
+      <div class="retrato"><span class="iniciales" aria-hidden="true">{iniciales(p.nombre)}</span><span class="colegiada">{p.colegiada}</span></div>
+      <p class="cargo">{p.cargo}</p>
+      <h3>{p.nombre}</h3>
+      <p>{p.texto}</p>
+      <dl>
+        <div><dt>Áreas</dt><dd>{p.areas.map((a) => areaPorClave(a)?.corto).join(' · ')}</dd></div>
+        <div><dt>Ejerce desde</dt><dd>{p.desde}</dd></div>
+        <div><dt>Idiomas</dt><dd>{p.idiomas.join(', ')}</dd></div>
+        <div><dt>Formación</dt><dd>{p.formacion}</dd></div>
+      </dl>
+    </li>
+  ))}
+</ul>

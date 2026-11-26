@@ -1,0 +1,60 @@
+---
+// Opiniones de Google: resumen con reparto de notas y tarjetas. Con filtros=true, botones por área (JS).
+import { opiniones, repartoNotas } from '../data/opiniones';
+import { despacho } from '../data/despacho';
+import { areas, areaPorClave } from '../data/areas';
+import { fechaLarga, fecha } from '../lib/calculos';
+
+interface Props { area?: string; limite?: number; resumen?: boolean; filtros?: boolean }
+const { area, limite = 6, resumen = true, filtros = false } = Astro.props;
+const lista = (area ? [...opiniones.filter((o) => o.area === area), ...opiniones.filter((o) => o.area !== area)] : opiniones).slice(0, filtros ? opiniones.length : limite);
+const total = repartoNotas.reduce((s, r) => s + r.total, 0);
+const iniciales = (n: string) => n.split(/\s+/).map((p) => p[0]).join('').slice(0, 2);
+const cuando = (f: string) => { const [a, m, d] = f.split('-').map(Number); return fechaLarga(fecha(a, m, d)); };
+---
+{resumen && (
+  <div class="resumen-opiniones">
+    <p class="nota-grande"><strong>{despacho.google.nota.toLocaleString('es-ES')}</strong><span>/ 5</span></p>
+    <div class="barras" aria-label={`Reparto de las ${total} opiniones`}>
+      {repartoNotas.map((r) => (
+        <div>
+          <span>{r.estrellas} ★</span>
+          <span class="pista"><span class="relleno" data-ancho={Math.round((r.total / total) * 100)}></span></span>
+          <span>{r.total}</span>
+        </div>
+      ))}
+    </div>
+    <div class="botones">
+      <a class="boton boton-linea" href={despacho.google.url} data-evento="opiniones-google">Ver las {despacho.google.total} opiniones en Google</a>
+    </div>
+  </div>
+)}
+{filtros && (
+  <div class="filtros" role="group" aria-label="Filtrar opiniones por área">
+    <button type="button" aria-pressed="true" data-filtro="">Todas</button>
+    {areas.map((a) => <button type="button" aria-pressed="false" data-filtro={a.clave}>{a.corto}</button>)}
+  </div>
+)}
+<ul class="opiniones" role="list" data-opiniones>
+  {lista.map((o) => (
+    <li class="opinion" data-area={o.area}>
+      <header>
+        <span class="avatar" aria-hidden="true">{iniciales(o.nombre)}</span>
+        <span class="quien"><strong>{o.nombre}</strong><span>{areaPorClave(o.area)?.nombre}</span></span>
+      </header>
+      <p class="estrellas" aria-label={`${o.nota} de 5 estrellas`}>{'★'.repeat(o.nota)}{'☆'.repeat(5 - o.nota)}</p>
+      <blockquote><p>{o.texto}</p></blockquote>
+      <footer><span class="google">Opinión en Google</span><time datetime={o.fecha}>{cuando(o.fecha)}</time></footer>
+    </li>
+  ))}
+</ul>
+<script>
+  // Ancho de las barras (por CSSOM: la CSP no permite estilos en línea).
+  document.querySelectorAll<HTMLElement>('.barras .relleno').forEach((b) => { b.style.width = `${b.dataset.ancho}%`; });
+  // Filtro por área.
+  const botones = [...document.querySelectorAll<HTMLButtonElement>('.filtros button')];
+  botones.forEach((b) => b.addEventListener('click', () => {
+    botones.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    document.querySelectorAll<HTMLElement>('[data-opiniones] .opinion').forEach((o) => { o.hidden = !!b.dataset.filtro && o.dataset.area !== b.dataset.filtro; });
+  }));
+</script>

@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import Migas from '../../components/Migas.astro';
+import Foto from '../../components/Foto.astro';
+import CtaFinal from '../../components/CtaFinal.astro';
+import { calculadoras } from '../../data/calculadoras';
+import { migasJsonld } from '../../lib/seo';
+import og from '../../assets/fotos/plumin.jpg';
+const migas = [{ nombre: 'Calculadoras' }];
+---
+<Base title="Calculadoras legales gratuitas" description="Calcula tu indemnización por despido, el reparto de una herencia, los plazos para reclamar, los intereses de una deuda o el presupuesto de tu asunto." og={og} jsonld={[migasJsonld(migas, '/calculadoras/')]}>
+  <Migas items={migas} />
+  <section class="cabecera-pagina" aria-labelledby="titulo">
+    <div class="contenedor">
+      <div class="grilla">
+        <div data-entrada><p class="etiqueta">Calculadoras gratuitas</p><h1 id="titulo">Haz números <em>antes de decidir</em></h1></div>
+        <div class="foto-marco marco-cuadrado"><Foto slug="plumin" prioridad sizes="(min-width: 64rem) 35vw, 100vw" anchos={[480, 800, 1280]} /></div>
+      </div>
+      <p class="entradilla secundario">Herramientas con las reglas de la ley española, para que llegues a la primera reunión con una idea clara. Todo se calcula en tu navegador: no guardamos nada.</p>
+    </div>
+  </section>
+  <section class="seccion" aria-label="Calculadoras">
+    <div class="contenedor">
+      <ul class="tarjetas-calc" role="list">
+        {calculadoras.map((c) => <li><a class="tarjeta-calc" href={c.href}><span class="muestra">{c.muestra}</span><span><h3>{c.nombre}</h3><p>{c.texto}</p></span></a></li>)}
+      </ul>
+      <p class="nota">Los resultados son orientativos. Cada caso tiene detalles que cambian el número: un abogado puede revisarlo contigo.</p>
+    </div>
+  </section>
+  <CtaFinal />
+</Base>

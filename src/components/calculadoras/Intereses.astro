@@ -1,0 +1,45 @@
+---
+// Intereses de demora entre empresas (Ley 3/2004): BCE + 8 puntos y 40 € por factura.
+import { TIPO_DEMORA } from '../../lib/calculos';
+---
+<section class="calculadora" aria-label="Calculadora de intereses por impago">
+  <form class="entrada" data-calc="intereses" novalidate>
+    <p class="formulario-titulo">¿Cuánto te deben con intereses?</p>
+    <div class="campos dos">
+      <div class="campo"><label for="int-importe">Importe impagado</label><input id="int-importe" name="importe" type="number" min="0" step="10" value="6000" inputmode="decimal" /></div>
+      <div class="campo"><label for="int-facturas">Número de facturas</label><input id="int-facturas" name="facturas" type="number" min="1" max="200" step="1" value="3" /></div>
+    </div>
+    <div class="campos dos">
+      <div class="campo"><label for="int-vencimiento">Vencimiento</label><input id="int-vencimiento" name="vencimiento" type="date" data-hace="120" /></div>
+      <div class="campo"><label for="int-hasta">Calcular hasta</label><input id="int-hasta" name="hasta" type="date" data-hace="0" /></div>
+    </div>
+    <div class="campo"><label for="int-tipo">Tipo de interés anual (%)</label><input id="int-tipo" name="tipo" type="number" min="0" max="30" step="0.01" value={TIPO_DEMORA.porcentaje} /><span class="ayuda">Tipo legal de demora en operaciones comerciales ({TIPO_DEMORA.vigencia}). Se actualiza cada semestre.</span></div>
+  </form>
+  <div class="salida" aria-live="polite" data-salida="intereses"><p class="vacio">Completa los datos.</p></div>
+</section>
+<script>
+  import { interesesDemora, euros, numero, aInput, sumarDias, deInput } from '../../lib/calculos';
+  import { alCambiar, acciones, num, txt } from '../../scripts/calc-comun';
+  document.querySelectorAll<HTMLFormElement>('form[data-calc="intereses"]').forEach((form) => {
+    const salida = form.parentElement!.querySelector<HTMLElement>('[data-salida="intereses"]')!;
+    form.querySelectorAll<HTMLInputElement>('[data-hace]').forEach((i) => { if (!i.value) i.value = aInput(sumarDias(new Date(), -Number(i.dataset.hace))); });
+    alCambiar(form, () => {
+      const vencimiento = deInput(txt(form, 'vencimiento'));
+      const hasta = deInput(txt(form, 'hasta'));
+      const importe = num(form, 'importe');
+      if (!vencimiento || !hasta || hasta < vencimiento || importe <= 0) { salida.innerHTML = '<p class="vacio">Revisa el importe y las fechas.</p>'; return; }
+      const r = interesesDemora({ importe, vencimiento, hasta, tipo: num(form, 'tipo'), facturas: num(form, 'facturas') });
+      const texto = `Hola, un cliente me debe ${euros(importe)} en ${num(form, 'facturas')} facturas vencidas el ${vencimiento.toLocaleDateString('es-ES')}. Con intereses y la compensación de 40 € por factura me sale ${euros(r.total, 2)}. ¿Me ayudáis a reclamarlo?`;
+      salida.innerHTML = `
+        <p class="etiqueta">Total que puedes reclamar</p>
+        <p class="cifra-grande">${euros(r.total, 2)}</p>
+        <dl class="desglose">
+          <div><dt>Principal</dt><dd>${euros(importe, 2)}</dd></div>
+          <div><dt>Intereses (${numero(r.dias)} días al ${numero(num(form, 'tipo'), 2)} %)</dt><dd>${euros(r.intereses, 2)}</dd></div>
+          <div><dt>Compensación por costes de cobro (40 € × ${num(form, 'facturas')})</dt><dd>${euros(r.compensacion, 2)}</dd></div>
+        </dl>
+        <p class="nota-legal">Ley 3/2004 de lucha contra la morosidad, para deudas entre empresas o con la Administración. Interés simple desde el vencimiento. Si el tipo cambió de semestre, el cálculo exacto se hace por tramos.</p>
+        ${acciones(texto, 'empresas')}`;
+    });
+  });
+</script>

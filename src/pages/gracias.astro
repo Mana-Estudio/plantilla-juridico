@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import TarjetasAreas from '../components/TarjetasAreas.astro';
+import { despacho } from '../data/despacho';
+---
+<Base title="Gracias" description="Hemos recibido tu mensaje." noindex>
+  <section class="cabecera-pagina">
+    <div class="contenedor error-404">
+      <p class="etiqueta">Mensaje recibido</p>
+      <h1>Gracias. <em>Te contestamos en un día laborable.</em></h1>
+      <p class="entradilla secundario">Si tienes un plazo encima o es urgente, llámanos al <a href={despacho.contacto.telefonoHref}>{despacho.contacto.telefono}</a>.</p>
+      <div class="botones"><a class="boton" href="/">Volver al inicio</a><a class="boton boton-linea" href="/calculadoras/">Ver las calculadoras</a></div>
+    </div>
+  </section>
+  <section class="seccion fondo-lino"><div class="contenedor"><TarjetasAreas /></div></section>
+</Base>

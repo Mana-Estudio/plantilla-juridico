@@ -1,0 +1,29 @@
+---
+import PaginaCalculadora from '../../layouts/PaginaCalculadora.astro';
+import Plazos from '../../components/calculadoras/Plazos.astro';
+const preguntas = [
+  { p: '¿Qué diferencia hay entre caducidad y prescripción?', r: 'La caducidad no se puede interrumpir: si pasa el plazo, se pierde el derecho (como en el despido). La prescripción sí se interrumpe con una reclamación escrita, y el plazo vuelve a empezar.' },
+  { p: '¿Qué son los días hábiles?', r: 'Los que no son sábado, domingo ni festivo. En los plazos judiciales tampoco cuentan el 24 y el 31 de diciembre. En los despidos, agosto sí cuenta.' },
+  { p: '¿Cómo interrumpo un plazo de prescripción?', r: 'Con una reclamación que deje constancia, como un burofax con acuse de recibo, o presentando la demanda. Conviene hacerlo bien redactado.' },
+];
+---
+<PaginaCalculadora slug="plazos-para-reclamar" area="trafico" preguntas={preguntas}
+  title="¿Estoy a tiempo de reclamar? Calculadora de plazos legales"
+  description="Calcula la fecha límite para impugnar un despido, reclamar un accidente de tráfico, una deuda, una multa o presentar el impuesto de sucesiones."
+  h1="¿Estoy a tiempo de reclamar?"
+  entradilla="La fecha límite de los plazos que más se consultan: despidos, salarios, accidentes, multas, deudas e impuesto de sucesiones.">
+  <Plazos slot="herramienta" inicial="despido" />
+  <p>Cada reclamación tiene su plazo, y no todos se cuentan igual. Los de <strong>días hábiles</strong> descuentan sábados, domingos y festivos; los de <strong>meses o años</strong> se cuentan de fecha a fecha.</p>
+  <table>
+    <thead><tr><th>Para</th><th>Plazo</th><th>Desde</th></tr></thead>
+    <tbody>
+      <tr><td>Impugnar un despido</td><td>20 días hábiles</td><td>El día siguiente al despido</td></tr>
+      <tr><td>Reclamar salarios</td><td>1 año</td><td>Cuando debieron pagarse</td></tr>
+      <tr><td>Accidente de tráfico</td><td>1 año</td><td>El alta médica</td></tr>
+      <tr><td>Recurrir una multa</td><td>20 días naturales</td><td>La notificación</td></tr>
+      <tr><td>Impuesto de sucesiones</td><td>6 meses</td><td>El fallecimiento</td></tr>
+      <tr><td>Deuda de un contrato</td><td>5 años</td><td>El vencimiento</td></tr>
+    </tbody>
+  </table>
+  <p class="destacado">Si el plazo está cerca o crees que ya pasó, no esperes: a veces se puede interrumpir o hay otra vía para reclamar.</p>
+</PaginaCalculadora>

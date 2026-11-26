@@ -1,0 +1,46 @@
+---
+import { despacho, navegacion } from '../data/despacho';
+import { areas } from '../data/areas';
+const ano = new Date().getFullYear();
+---
+<footer class="pie">
+  <div class="contenedor">
+    <div class="pie-grilla">
+      <div>
+        <p class="marca-nombre">{despacho.nombre}</p>
+        <p>{despacho.descripcion}</p>
+        <p>{despacho.colegio}.</p>
+      </div>
+      <nav aria-label="Áreas">
+        <h3>Áreas</h3>
+        <ul role="list">{areas.map((a) => <li><a href={`/areas/${a.slug}/`}>{a.nombre}</a></li>)}</ul>
+      </nav>
+      <nav aria-label="El despacho">
+        <h3>El despacho</h3>
+        <ul role="list">
+          {navegacion.slice(1).map((n) => <li><a href={n.href}>{n.nombre}</a></li>)}
+          <li><a href="/presupuesto/">Presupuesto</a></li>
+        </ul>
+      </nav>
+      <div>
+        <h3>Contacto</h3>
+        <ul role="list">
+          <li><a href={despacho.contacto.telefonoHref}>{despacho.contacto.telefono}</a></li>
+          <li><a href={`mailto:${despacho.contacto.email}`}>{despacho.contacto.email}</a></li>
+          <li><a href={despacho.direccion.mapa}>{despacho.direccion.calle}, {despacho.direccion.cp} {despacho.direccion.ciudad}</a></li>
+        </ul>
+        <p>{despacho.horario[0].dias}: {despacho.horario[0].horas}<br />{despacho.horario[1].dias}: {despacho.horario[1].horas}</p>
+      </div>
+    </div>
+    <div class="pie-legal">
+      <p>© {ano} {despacho.razonSocial} · NIF {despacho.nif}</p>
+      <ul role="list">
+        <li><a href="/aviso-legal/">Aviso legal</a></li>
+        <li><a href="/privacidad/">Privacidad</a></li>
+        <li><a href="/cookies/">Cookies</a></li>
+        <li><a href="/creditos/">Créditos de las fotos</a></li>
+      </ul>
+    </div>
+    <p class="creditos">Fotografías de Wikimedia Commons con licencias Creative Commons y de dominio público; autores y licencias en <a href="/creditos/">créditos</a>. Esta web no usa cookies de seguimiento ni de publicidad.</p>
+  </div>
+</footer>

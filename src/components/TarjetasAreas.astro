@@ -1,0 +1,20 @@
+---
+import Foto from './Foto.astro';
+import { areas } from '../data/areas';
+import { desdeArea } from '../data/honorarios';
+interface Props { excluir?: string }
+const { excluir } = Astro.props;
+const lista = areas.filter((a) => a.slug !== excluir);
+---
+<ul class="tarjetas-areas" role="list">
+  {lista.map((a) => (
+    <li>
+      <a class="tarjeta-area" href={`/areas/${a.slug}/`}>
+        <div class="marco"><Foto slug={a.foto} sizes="(min-width: 68rem) 30vw, (min-width: 44rem) 48vw, 100vw" anchos={[480, 720, 960, 1280]} /></div>
+        <div class="fila"><h3>{a.nombre}</h3><span class="num" aria-hidden="true">{String(areas.indexOf(a) + 1).padStart(2, '0')}</span></div>
+        <p>{a.resumen}</p>
+        <span class="precio">{desdeArea(a.clave)}</span>
+      </a>
+    </li>
+  ))}
+</ul>

@@ -1,0 +1,56 @@
+---
+// Página de una calculadora: herramienta arriba, explicación de cómo se calcula, preguntas y relacionadas.
+import Base from './Base.astro';
+import Migas from '../components/Migas.astro';
+import Faqs from '../components/Faqs.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { calculadoras } from '../data/calculadoras';
+import { areaPorClave } from '../data/areas';
+import { migasJsonld, faqJsonld, herramientaJsonld } from '../lib/seo';
+
+interface Props { slug: string; title: string; description: string; h1: string; entradilla: string; preguntas: { p: string; r: string }[]; area: string }
+const { slug, title, description, h1, entradilla, preguntas, area } = Astro.props;
+const ruta = `/calculadoras/${slug}/`;
+const migas = [{ nombre: 'Calculadoras', href: '/calculadoras/' }, { nombre: calculadoras.find((c) => c.slug === slug)?.nombre ?? h1 }];
+const otras = calculadoras.filter((c) => c.slug !== slug).slice(0, 3);
+const a = areaPorClave(area);
+---
+<Base title={title} description={description} whatsapp={a?.whatsapp} jsonld={[migasJsonld(migas, ruta), faqJsonld(preguntas), herramientaJsonld(h1, description, ruta)]}>
+  <Migas items={migas} />
+  <section class="cabecera-pagina" aria-labelledby="titulo">
+    <div class="contenedor">
+      <div class="grilla" data-entrada>
+        <div><p class="etiqueta">Calculadora gratuita</p><h1 id="titulo">{h1}</h1></div>
+        <p class="entradilla secundario">{entradilla}</p>
+      </div>
+    </div>
+  </section>
+  <section class="seccion-corta" aria-label="Calculadora">
+    <div class="contenedor"><slot name="herramienta" /></div>
+  </section>
+  <section class="seccion" aria-labelledby="explica-titulo">
+    <div class="contenedor dos-col">
+      <div class="cabecera-seccion pegajoso">
+        <p class="etiqueta">Cómo se calcula</p>
+        <h2 id="explica-titulo">Lo que hay <em>detrás del número</em></h2>
+        {a && <a class="enlace-flecha" href={`/areas/${a.slug}/`}>Abogados de {a.corto.toLowerCase()}</a>}
+      </div>
+      <div class="prosa"><slot /></div>
+    </div>
+  </section>
+  <section class="seccion fondo-lino" aria-labelledby="faq-titulo">
+    <div class="contenedor dos-col">
+      <header class="cabecera-seccion"><p class="etiqueta">Preguntas frecuentes</p><h2 id="faq-titulo">Dudas habituales</h2></header>
+      <Faqs preguntas={preguntas} />
+    </div>
+  </section>
+  <section class="seccion" aria-labelledby="otras-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion"><p class="etiqueta">Más calculadoras</p><h2 id="otras-titulo">Otras herramientas</h2></header>
+      <ul class="tarjetas-calc" role="list">
+        {otras.map((c) => <li><a class="tarjeta-calc" href={c.href}><span class="muestra">{c.muestra}</span><span><h3>{c.nombre}</h3><p>{c.texto}</p></span></a></li>)}
+      </ul>
+    </div>
+  </section>
+  <CtaFinal mensajeWhatsapp={a?.whatsapp} />
+</Base>

@@ -1,0 +1,111 @@
+---
+import Base from '../layouts/Base.astro';
+import Migas from '../components/Migas.astro';
+import Foto from '../components/Foto.astro';
+import Icono from '../components/Icono.astro';
+import IconoWhatsapp from '../components/IconoWhatsapp.astro';
+import ReservaCita from '../components/ReservaCita.astro';
+import Valoracion from '../components/Valoracion.astro';
+import TeLlamamos from '../components/TeLlamamos.astro';
+import Faqs from '../components/Faqs.astro';
+import { despacho, whatsapp } from '../data/despacho';
+import { primeraConsulta } from '../data/honorarios';
+import { migasJsonld, faqJsonld } from '../lib/seo';
+import og from '../assets/fotos/portal-clasico.jpg';
+const migas = [{ nombre: 'Contacto' }];
+const preguntas = [
+  { p: '¿Cuánto tardáis en contestar?', r: 'Un día laborable como máximo. Si hay un plazo encima, llámanos: lo vemos en el momento.' },
+  { p: '¿La primera consulta tiene coste?', r: `Sí: ${primeraConsulta.precio} € + IVA por ${primeraConsulta.duracion}. ${primeraConsulta.texto}` },
+  { p: '¿Lo que os cuente es confidencial?', r: 'Sí. Todo lo que nos cuentes está protegido por el secreto profesional desde la primera consulta, aunque luego no nos encargues el asunto.' },
+  { p: '¿Atendéis fuera de Madrid?', r: 'Sí. Por videollamada atendemos en toda España, y nos desplazamos a juzgados de toda la Comunidad de Madrid.' },
+];
+---
+<Base title="Contacto y cita" description={`Pide cita en el despacho, por videollamada o por teléfono. ${despacho.direccion.calle}, Madrid. ${despacho.contacto.telefono}.`} og={og} jsonld={[migasJsonld(migas, '/contacto/'), faqJsonld(preguntas)]}>
+  <Migas items={migas} />
+  <section class="cabecera-pagina" aria-labelledby="titulo">
+    <div class="contenedor">
+      <div class="grilla" data-entrada>
+        <div><p class="etiqueta">Contacto</p><h1 id="titulo">Cuéntanos tu caso. <em>Elige cómo.</em></h1></div>
+        <p class="entradilla secundario">Respondemos en un día laborable como máximo. Todo lo que nos cuentes queda protegido por el secreto profesional.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion-corta" aria-label="Tres formas de empezar">
+    <div class="contenedor">
+      <ul class="vias-contacto" role="list">
+        <li><a class="via-contacto" href="#cita"><span class="num">01</span><h3>Pedir cita</h3><p>Elige día y hora para la primera consulta, en el despacho, por videollamada o por teléfono.</p></a></li>
+        <li><a class="via-contacto" href="#valoracion"><span class="num">02</span><h3>Valorar mi caso</h3><p>Tres preguntas cortas y te contactamos para decirte cómo podemos ayudarte.</p></a></li>
+        <li><a class="via-contacto" href="#llamada"><span class="num">03</span><h3>Que me llamen</h3><p>Déjanos tu teléfono y te llamamos cuando te venga bien.</p></a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="seccion fondo-lino" aria-labelledby="cita-titulo">
+    <div class="contenedor dos-col">
+      <div class="cabecera-seccion pegajoso">
+        <p class="etiqueta">01 · Cita</p>
+        <h2 id="cita-titulo">Primera consulta</h2>
+        <p class="secundario">{primeraConsulta.duracion}. Te explicamos tus opciones, los plazos y lo que costaría, y te damos el presupuesto por escrito.</p>
+        <dl class="lista-datos">
+          {despacho.horario.map((h) => <div><dt>{h.dias}</dt><dd>{h.horas}</dd></div>)}
+        </dl>
+      </div>
+      <ReservaCita />
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="valoracion-titulo">
+    <div class="contenedor dos-col">
+      <div class="cabecera-seccion pegajoso">
+        <p class="etiqueta">02 · Valoración</p>
+        <h2 id="valoracion-titulo">Cuéntanos tu caso <em>en un minuto</em></h2>
+        <ul class="credenciales" role="list">
+          <li><Icono nombre="check" /><span>Sin compromiso: decides tú si seguimos.</span></li>
+          <li><Icono nombre="check" /><span>No hace falta que adjuntes documentos: los vemos en la reunión.</span></li>
+          <li><Icono nombre="check" /><span>Protegido por el secreto profesional.</span></li>
+        </ul>
+      </div>
+      <Valoracion />
+    </div>
+  </section>
+
+  <section class="seccion fondo-lino" aria-labelledby="llamada-titulo">
+    <div class="contenedor dos-col">
+      <div class="cabecera-seccion">
+        <p class="etiqueta">03 · Llamada</p>
+        <h2 id="llamada-titulo">¿Prefieres hablar?</h2>
+        <div class="botones">
+          <a class="boton boton-linea" href={despacho.contacto.telefonoHref}><Icono nombre="telefono" />{despacho.contacto.telefono}</a>
+          <a class="boton boton-linea" href={whatsapp()}><IconoWhatsapp />WhatsApp</a>
+        </div>
+        <p class="secundario">Urgencias penales, las 24 horas: <a href={despacho.contacto.urgenciasHref}>{despacho.contacto.urgencias}</a>.</p>
+      </div>
+      <TeLlamamos id="llamada" titulo="O te llamamos nosotros" />
+    </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="donde-titulo">
+    <div class="contenedor dos-col mitad">
+      <div class="foto-marco marco-ancho"><Foto slug="portal-clasico" sizes="(min-width: 64rem) 45vw, 100vw" anchos={[480, 800, 1200, 1600]} /></div>
+      <div>
+        <header class="cabecera-seccion"><p class="etiqueta">Dónde estamos</p><h2 id="donde-titulo">{despacho.direccion.barrio}, <em>Madrid</em></h2></header>
+        <dl class="lista-datos">
+          <div><dt>Dirección</dt><dd>{despacho.direccion.calle}<br />{despacho.direccion.cp} {despacho.direccion.ciudad}</dd></div>
+          <div><dt>Teléfono</dt><dd><a href={despacho.contacto.telefonoHref}>{despacho.contacto.telefono}</a></dd></div>
+          <div><dt>Email</dt><dd><a href={`mailto:${despacho.contacto.email}`}>{despacho.contacto.email}</a></dd></div>
+          <div><dt>Metro</dt><dd>{despacho.direccion.metro}</dd></div>
+          <div><dt>Accesibilidad</dt><dd>{despacho.direccion.accesible}</dd></div>
+        </dl>
+        <div class="botones"><a class="boton" href={despacho.direccion.mapa}><Icono nombre="mapa" />Cómo llegar</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion fondo-lino" aria-labelledby="faq-titulo">
+    <div class="contenedor dos-col">
+      <header class="cabecera-seccion"><p class="etiqueta">Preguntas frecuentes</p><h2 id="faq-titulo">Antes de escribirnos</h2></header>
+      <Faqs preguntas={preguntas} />
+    </div>
+  </section>
+</Base>
